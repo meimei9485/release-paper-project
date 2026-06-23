@@ -1,0 +1,365 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeesCraftyCorners 外观偏好深入分析 PPT</title>
+    <style>
+        /* ================= 基础重置与变量 ================= */
+        :root {
+            --bg-color: #f1f5f9;         /* 整体背景 */
+            --slide-bg: #ffffff;         /* 画布背景 */
+            --text-primary: #0f172a;     /* 主文本加深 */
+            --text-secondary: #334155;   /* 次文本加强阅读 */
+            --text-muted: #64748b;       /* 辅助文本 */
+            --border-color: #e2e8f0;     /* 边框区隔 */
+            
+            --accent-blue: #0284c7;      /* 重点蓝(加深提亮) */
+            --accent-blue-light: #f0f9ff;
+            --accent-blue-bg: rgba(14, 165, 233, 0.06);
+            
+            --accent-purple: #7c3aed;    /* 洞察紫(加深) */
+            --accent-purple-light: #f5f3ff;
+            --accent-purple-bg: rgba(139, 92, 246, 0.06);
+            
+            --rank1: #f59e0b;            
+            --rank2: #94a3b8;            
+            --rank3: #b45309;            
+            
+            --shadow-sm: 0 0.3cqw 0.8cqw rgba(0,0,0,0.04);
+            --shadow-md: 0 0.8cqw 2cqw rgba(0,0,0,0.08); /* 增添悬浮质感 */
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden; 
+        }
+
+        /* ================= 16:9 画布刚性约束容器 ================= */
+        .presentation-frame {
+            position: relative; width: 100vw; max-width: 1600px;
+            aspect-ratio: 16 / 9; max-height: 98vh; /* 让出最大容积 */
+            container-type: inline-size; container-name: slide;
+            background: var(--slide-bg); border-radius: 1cqw;
+            box-shadow: var(--shadow-md); display: flex; flex-direction: column;
+            overflow: hidden; box-sizing: border-box;
+            padding: 2cqw 2.5cqw; /* 适当缩小外边距，拉大内部空间 */
+        }
+
+        /* ================= 极简头部设计 ================= */
+        header {
+            flex: 0 0 auto; display: flex; justify-content: space-between; align-items: flex-end;
+            padding-bottom: 1.2cqw; border-bottom: 0.15cqw solid var(--border-color); margin-bottom: 1.2cqw;
+        }
+        .header-title-box h1 {
+            margin: 0; font-size: 2.2cqw; font-weight: 800; color: var(--text-primary); letter-spacing: -0.05cqw;
+        }
+        .header-title-box p {
+            margin: 0.5cqw 0 0 0; font-size: 0.95cqw; color: var(--text-muted); font-weight: 500;
+        }
+        .header-insight { display: flex; gap: 0.8cqw; align-items: center; }
+        .header-insight .badge {
+            background: var(--text-primary); color: white;
+            padding: 0.4cqw 0.8cqw; border-radius: 2cqw; font-size: 0.85cqw; font-weight: 600;
+        }
+
+        /* ================= 极密网格布局 ================= */
+        .content-grid {
+            flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: 2fr 1fr; gap: 1.5cqw; overflow: hidden;
+        }
+        .col-left { display: grid; grid-template-rows: 1fr 1fr; gap: 1.2cqw; min-height: 0; }
+        .col-right { display: flex; flex-direction: column; background: #f8fafc; border-radius: 0.8cqw; padding: 1.2cqw; min-height: 0; border: 0.1cqw solid var(--border-color);}
+        .section { display: flex; flex-direction: column; min-height: 0; }
+
+        .section-title {
+            font-size: 1.3cqw; font-weight: 800; color: var(--text-primary); margin: 0 0 0.8cqw 0.2cqw;
+            display: flex; align-items: center; gap: 0.5cqw;
+        }
+
+        .card-row { flex: 1 1 0; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1cqw; }
+        .col-right .card-row { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; gap: 1.2cqw; }
+
+        /* ================= 卡片主架构 (弹性伸缩填满) ================= */
+        .card, .cross-card {
+            background: #ffffff; border: 0.1cqw solid var(--border-color); border-radius: 0.6cqw;
+            box-shadow: var(--shadow-sm); padding: 1cqw 1.2cqw;
+            display: flex; flex-direction: column; gap: 0.6cqw; min-height: 0;
+            opacity: 0; transform: translateY(1.5cqw);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* 顶部标签区 */
+        .card-header { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .tag-group { display: flex; align-items: center; gap: 0.5cqw; }
+        .rank { font-size: 0.8cqw; font-weight: 800; color: white; padding: 0.1cqw 0.5cqw; border-radius: 0.2cqw; }
+        .rank-1 { background: var(--rank1); } .rank-2 { background: var(--rank2); } .rank-3 { background: var(--rank3); }
+        
+        .main-tag { font-size: 1.15cqw; font-weight: 800; color: var(--text-primary); } /* 字体放大 */
+        .cross-card .main-tag { color: var(--accent-purple); font-size: 1.2cqw;}
+
+        .data-pct { font-size: 0.9cqw; font-weight: 800; color: var(--accent-blue); background: var(--accent-blue-light); padding: 0.2cqw 0.6cqw; border-radius: 1cqw; }
+        .cross-card .data-pct { color: var(--accent-purple); background: var(--accent-purple-light); }
+
+        .sub-tags { flex: 0 0 auto; display: flex; flex-wrap: wrap; gap: 0.3cqw; }
+        .sub-tags span {
+            font-size: 0.75cqw; color: var(--text-muted); background: #f1f5f9;
+            border: 0.05cqw solid #e2e8f0; padding: 0.1cqw 0.4cqw; border-radius: 0.2cqw;
+        }
+
+        /* 核心洞察区 (放大字号，减少留白) */
+        .insight-box {
+            flex: 0 0 auto;
+            font-size: 0.9cqw; /* 字体显著放大 */
+            line-height: 1.5; color: var(--text-secondary);
+            text-align: justify;
+        }
+        .insight-highlight { font-weight: 800; color: var(--text-primary); background: linear-gradient(120deg, rgba(139,92,246,0.15) 0%, rgba(14,165,233,0.15) 100%); padding: 0 0.2cqw; border-radius: 0.2cqw;}
+
+        /* 下方语录与图片拼图填满 (消除边缘白斑) */
+        .card-footer {
+            flex: 1 1 0; /* 吸收一切底端剩余空间 */
+            display: flex; gap: 1cqw; min-height: 0; align-items: stretch;
+            margin-top: auto; 
+        }
+
+        /* 左侧评论块 */
+        .quote {
+            flex: 1 1 50%;
+            background: var(--accent-blue-bg); border-left: 0.3cqw solid var(--accent-blue);
+            border-radius: 0 0.4cqw 0.4cqw 0; padding: 0.8cqw;
+            display: flex; align-items: center; justify-content: flex-start;
+            overflow: hidden;
+        }
+        .cross-card .quote { background: var(--accent-purple-bg); border-color: var(--accent-purple); }
+        
+        .quote-text {
+            font-size: 0.82cqw; line-height: 1.4; color: var(--text-muted); font-style: italic;
+            display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5;
+        }
+
+        /* 右侧图片块 */
+        .card-img-wrapper {
+            flex: 1 1 50%; 
+            background: #f8fafc; border-radius: 0.4cqw; border: 0.1cqw solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            padding: 0.5cqw; box-sizing: border-box; overflow: hidden; min-height: 0; min-width: 0;
+        }
+        .card-img-wrapper img {
+            max-width: 100%; max-height: 100%; object-fit: contain; display: block;
+        }
+
+        /* 交叉分析特写调整 */
+        .cross-card { border-left: 0.4cqw solid var(--accent-purple); padding-left: 1cqw; }
+
+        /* 动画控制 */
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(1.5cqw); } 100% { opacity: 1; transform: translateY(0); } }
+        .card:nth-child(1) { animation-delay: 0.05s; } .card:nth-child(2) { animation-delay: 0.15s; } .card:nth-child(3) { animation-delay: 0.25s; }
+        .cross-card:nth-child(1) { animation-delay: 0.35s; } .cross-card:nth-child(2) { animation-delay: 0.45s; }
+
+    </style>
+</head>
+<body>
+
+    <div class="presentation-frame">
+        
+        <!-- Header -->
+        <header>
+            <div class="header-title-box">
+                <h1>BeesCraftyCorners 外观偏好深入分析</h1>
+                <p>基于核心评价数据的边框主题、色彩子类细分及交叉特征洞察模型</p>
+            </div>
+            <div class="header-insight">
+                <span class="badge" style="background:var(--accent-purple);">颗粒度下钻分析</span>
+                <span class="badge" style="background:var(--accent-blue);">设计策略导向</span>
+            </div>
+        </header>
+
+        <!-- Main Grid Area -->
+        <div class="content-grid">
+            
+            <!-- ====== 左部列 ====== -->
+            <div class="col-left">
+                
+                <!-- Section 1: 边框主题 -->
+                <div class="section">
+                    <h2 class="section-title">✨ 边框主题偏好分析</h2>
+                    <div class="card-row">
+                        <!-- 主题 1 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-1">No.1</span><span class="main-tag">纯色无花纹</span></div>
+                                <span class="data-pct">30.2%</span>
+                            </div>
+                            <div class="sub-tags"><span>纯色(39)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【功能至上与视觉秩序感】</span>玩家选择纯色是为了“不喧宾夺主”。极简线条不仅能与各色画作协调，还能安抚点钻过程，极大满足追求绝对整齐的 Type-A (完美主义/强迫症)心理。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"...amazing section frames! I can always find something to coordinate with my canvas paintings."</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/WtOsv5W.png" alt="纯色"></div>
+                            </div>
+                        </div>
+                        <!-- 主题 2 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-2">No.2</span><span class="main-tag">云朵与星空</span></div>
+                                <span class="data-pct">14.7%</span>
+                            </div>
+                            <div class="sub-tags"><span>星云(8)</span><span>云彩晕染(6)</span><span>扎染星空(5)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【“软边界”护眼密码】</span>图案设计自然渐变、没有死板硬朗实线条。沉浸盯视画作时，“软边界”能显著降低原画与边框隔离的锋利感，对眼睛极度友好，完美缓解视疲劳。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"...these will work perfectly for sectioning my canvases without fully covering the image layout."</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/Lt8XrFA.png" alt="星空"></div>
+                            </div>
+                        </div>
+                        <!-- 主题 3 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-3">No.3</span><span class="main-tag">彩虹色系</span></div>
+                                <span class="data-pct">10.9%</span>
+                            </div>
+                            <div class="sub-tags"><span>彩虹色(12)</span><span>条纹渐变(2)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【超预期的多巴胺刺激】</span>相关评论情绪在此区域最为亢奋，多次强调“Vibrant(耀眼)”。多色渐变给长期低头点钻的单一动作提供了极强视觉多巴胺补偿，远超买家预期。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"the color on the vinyl is sooo vibrant and shiny! Was not expecting that but pleasantly surprised."</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/ycdMwYa.png" alt="彩虹"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: 边框色彩 -->
+                <div class="section">
+                    <h2 class="section-title">🎨 边框颜色偏好分析</h2>
+                    <div class="card-row">
+                        <!-- 色彩 1 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-1">No.1</span><span class="main-tag">彩色混色</span></div>
+                                <span class="data-pct">41.9%</span>
+                            </div>
+                            <div class="sub-tags"><span>撞色(29)</span><span>浅色(16)</span><span>炫彩(6)</span><span>幻彩(3)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【对抗枯燥的防疲劳剂】</span>热销源于情绪价值。“高饱撞色”向视觉直供多巴胺；而以马卡龙为主的“浅色系”，则解决叠加不突兀的需求，双向兼顾了进阶美观与实用诉求。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"...pleasantly surprised by the vibrant abstract contrast."</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/ivBPSVg.png" alt="混色"></div>
+                            </div>
+                        </div>
+                        <!-- 色彩 2 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-2">No.2</span><span class="main-tag">紫色系列</span></div>
+                                <span class="data-pct">7.0%</span>
+                            </div>
+                            <div class="sub-tags"><span>紫色(6)</span><span>浅紫色(3)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【强个人偏爱与审美绑定】</span>在一众单色域极速破圈，多现“My favorite / Adorable”。其自带的优雅梦幻感让胶带褪去工具外衣，升华成为用户审美品位的完美投射载体。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"The purple is my favorite coloring so far. Absolutely Adorable!!!"</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/eYmt8Zl.png" alt="紫色"></div>
+                            </div>
+                        </div>
+                        <!-- 色彩 3 -->
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="tag-group"><span class="rank rank-3">No.3</span><span class="main-tag">高对基础色</span></div>
+                                <span class="data-pct">7.0%</span>
+                            </div>
+                            <div class="sub-tags"><span>黑(3)</span><span>组合(2)</span><span>红金白(各1)</span></div>
+                            <div class="insight-box">
+                                <span class="insight-highlight">【强硬极简隔离主义】</span>选择黑、红、白等高饱和单色款的用户追求功能巅峰，买的就是“绝对界限分离感”。评论聚焦“Works perfectly”，是彻头彻尾的效率导向之选。
+                            </div>
+                            <div class="card-footer">
+                                <div class="quote"><span class="quote-text">"These bold frames work perfectly on canvas. Ordering more!"</span></div>
+                                <div class="card-img-wrapper"><img src="https://wp-cdn.4ce.cn/v2/WtOsv5W.png" alt="基础色"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== 右部列 (交叉分析) ====== -->
+            <div class="col-right">
+                <h2 class="section-title" style="margin-left: 0;">📊 边框交叉分析</h2>
+                <div class="card-row">
+                    
+                    <!-- 交叉 1 -->
+                    <div class="cross-card">
+                        <div class="card-header">
+                            <div class="tag-group"><span class="main-tag">纯色主题 × 单一主色</span></div>
+                            <span class="data-pct">提及率 23.3%</span>
+                        </div>
+                        <div class="insight-box">
+                            <span class="insight-highlight">【构建强秩序的基础利器】</span>通过极简视觉大幅降噪，叠加物理增厚的绝佳手感脱颖而出。无花纹的实色彻底消除对视网膜的“信息负荷”，在辅助分界时绝不僭越画布原本的光芒，精准狙击并治愈强迫症群体(Type-A)。同时闪粉(Glitter)用料赋予了边框更强的立体硬挺度，实用性与爽感直接双向拉满。
+                        </div>
+                        <div class="card-footer" style="margin-top: 0.5cqw;">
+                            <div class="quote">
+                                <span class="quote-text">"This is one of my favorite diamond painting-related purchases. I really love how the frames keep everything perfectly even for my Type-A brain."</span>
+                            </div>
+                            <div class="card-img-wrapper">
+                                <img src="https://wp-cdn.4ce.cn/v2/hyeKDE0.png" alt="秩序纯色">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 交叉 2 -->
+                    <div class="cross-card">
+                        <div class="card-header">
+                            <div class="tag-group"><span class="main-tag">融合渐变 × 浅彩晕染色</span></div>
+                            <span class="data-pct">提及率 17.0%</span>
+                        </div>
+                        <div class="insight-box">
+                            <span class="insight-highlight">【深谙视觉弱反差的温柔框线】</span>这是镂空需求之外的第二大惊艳解法。通过设计运用“低对比度柔光感”全盘替代了那些死板刺目的“纯色实线牢笼”，以此最大化削减高强度眼压。偏浅的基础色系与云彩晕染图案完美交织，形成自然顺畅的跨度，不反光、不刺眼，是专门为“长续航眼球劳动”深度定制的极致交互体验。
+                        </div>
+                        <div class="card-footer" style="margin-top: 0.5cqw;">
+                            <div class="quote">
+                                <span class="quote-text">"These frames will work completely perfectly for sectioning my canvases without harsh boundaries or visually taking away from the lovely image."</span>
+                            </div>
+                            <div class="card-img-wrapper">
+                                <img src="https://wp-cdn.4ce.cn/v2/HhuDHka.png" alt="晕染渐变">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

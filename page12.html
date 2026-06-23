@@ -1,0 +1,318 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>竞品KANO交叉分析 - 离型纸产品洞察</title>
+    <style>
+        /* === 核心排版引擎：绝对约束与极限全屏比例 === */
+        :root {
+            --bg-body: #eceff4;
+            --bg-slide: #f8fafc;
+            --c-text-main: #334155;
+            --c-text-light: #64748b;
+            --c-title: #0f172a;
+            
+            /* KANO 视觉业务色彩定义 (高级莫兰迪商务色) */
+            --k-basic: #3b82f6;      /* 基础-信任蓝 */
+            --k-expect: #059669;     /* 期望-生机绿 */
+            --k-attr: #8b5cf6;       /* 魅力-惊喜紫 */
+            --k-indiff: #94a3b8;     /* 无差异-冷凝灰 */
+            --k-reverse: #ef4444;    /* 反向-警戒红 */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+            background-color: var(--bg-body);
+            overflow: hidden; /* 全局禁止滚动，坚决防溢出 */
+        }
+
+        /* 超级视口容器：防溢出 16:9 画布极限缩放算法 */
+        .ppt-wrapper {
+            position: relative;
+            width: 100vw;
+            max-width: calc(100vh * (16 / 9)); 
+            aspect-ratio: 16 / 9;
+            background: var(--bg-slide);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 1px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            container-type: size; /* 启用容器查询，所有尺寸依据此容器等比放大缩小 */
+            display: flex;
+            flex-direction: column;
+            padding: 3.5cqh 3.5cqw; /* 依据容器宽高的极限内边距 */
+        }
+
+        /* 动画设定 */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(2cqh); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 顶部标题区 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2cqh;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 1.5cqh;
+            animation: fadeUp 0.8s ease-out forwards;
+        }
+
+        .header h1 {
+            font-size: 5cqh;
+            font-weight: 800;
+            color: var(--c-title);
+            letter-spacing: 0.1cqw;
+        }
+
+        .header .subtitle {
+            font-size: 2.2cqh;
+            color: var(--c-text-light);
+            font-weight: 500;
+            margin-bottom: 0.5cqh;
+        }
+
+        /* 主阵地布局：3-2 黄金分割极致平铺 */
+        .kano-grid {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2cqh;
+            min-height: 0; /* Flex 核心抗溢出限制 */
+        }
+
+        .row-top {
+            flex: 5.5; 
+            display: flex;
+            gap: 2cqw;
+            min-height: 0;
+            animation: fadeUp 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .row-bottom {
+            flex: 4.5;
+            display: flex;
+            gap: 2cqw;
+            min-height: 0;
+            animation: fadeUp 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+
+        /* 卡片级视觉与结构 */
+        .card {
+            background: #ffffff;
+            border-radius: 1.5cqh;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-0.5cqh);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        /* 上下排宽高等分比 */
+        .card.basic, .card.expect, .card.attr { flex: 1; }
+        .card.indiff { flex: 0.4; } /* 需求少，分较小宽度 */
+        .card.reverse { flex: 0.6; } /* 需求多，分较大宽度 */
+
+        /* 卡片头部徽标带 */
+        .card-header {
+            padding: 1.5cqh 2cqw;
+            font-size: 2.2cqh;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .card-header::before {
+            content: '';
+            display: inline-block;
+            width: 0.6cqw;
+            height: 2.2cqh;
+            border-radius: 0.3cqw;
+            margin-right: 1cqw;
+        }
+
+        /* 卡片色彩派发 */
+        .card.basic .card-header::before { background: var(--k-basic); }
+        .card.basic .card-header { color: var(--k-basic); background: linear-gradient(90deg, #eff6ff, #fff); }
+        
+        .card.expect .card-header::before { background: var(--k-expect); }
+        .card.expect .card-header { color: var(--k-expect); background: linear-gradient(90deg, #ecfdf5, #fff); }
+        
+        .card.attr .card-header::before { background: var(--k-attr); }
+        .card.attr .card-header { color: var(--k-attr); background: linear-gradient(90deg, #f5f3ff, #fff); }
+        
+        .card.indiff .card-header::before { background: var(--k-indiff); }
+        .card.indiff .card-header { color: var(--k-indiff); background: linear-gradient(90deg, #f8fafc, #fff); }
+        
+        .card.reverse .card-header::before { background: var(--k-reverse); }
+        .card.reverse .card-header { color: var(--k-reverse); background: linear-gradient(90deg, #fef2f2, #fff); }
+
+        /* 卡片自适应文本核心区 */
+        .card-content {
+            padding: 1.5cqh 2cqw;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around; /* 极致压榨上下空白区域 */
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: flex-start;
+            font-size: 1.85cqh; /* 自适应字号核心武器 */
+            line-height: 1.5;
+            color: var(--c-text-main);
+        }
+
+        /* 定制化圆点替代无序列表符号 */
+        .list-item::before {
+            content: '●';
+            font-size: 1.2cqh;
+            margin-top: 0.6cqh;
+            margin-right: 0.8cqw;
+            flex-shrink: 0;
+        }
+
+        /* 圆点色彩同步 */
+        .card.basic .list-item::before { color: var(--k-basic); }
+        .card.expect .list-item::before { color: var(--k-expect); }
+        .card.attr .list-item::before { color: var(--k-attr); }
+        .card.indiff .list-item::before { color: var(--k-indiff); }
+        .card.reverse .list-item::before { color: var(--k-reverse); }
+
+        /* 高亮强调数据维度：加粗加深 */
+        strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+        
+        span.highlight {
+            font-weight: 800;
+        }
+
+        .card.reverse span.highlight { color: #dc2626; }
+        .card.expect span.highlight { color: #059669; }
+        .card.attr span.highlight { color: #7c3aed; }
+    </style>
+</head>
+<body>
+
+    <div class="ppt-wrapper">
+        <!-- 头部/标题 -->
+        <div class="header">
+            <h1>竞品KANO交叉分析</h1>
+            <div class="subtitle">离型纸市场·全景需求与核心感知提炼</div>
+        </div>
+
+        <!-- 极致平铺内容区 -->
+        <div class="kano-grid">
+            
+            <!-- 上排：三大正向刚需阵地 -->
+            <div class="row-top">
+                <!-- 基础需求 -->
+                <div class="card basic">
+                    <div class="card-header">基础需求 (Must-be)</div>
+                    <div class="card-content">
+                        <div class="list-item"><div><strong>绝对不粘胶水(离型力)：</strong>完整剥离、不留残胶、不伤画布，否则直接导致 <span class="highlight">1 星退货</span>。</div></div>
+                        <div class="list-item"><div><strong>物理隔绝功能：</strong>必须有效阻挡水汽、灰尘与宠物毛发。</div></div>
+                        <div class="list-item"><div><strong>尺寸准/无静电/无褶皱：</strong>替代原膜与安全使用的基本底线。</div></div>
+                    </div>
+                </div>
+
+                <!-- 期望需求 -->
+                <div class="card expect">
+                    <div class="card-header">期望需求 (One-dimensional)</div>
+                    <div class="card-content">
+                        <div class="list-item"><div><strong>可重复利用率(耐用性)：</strong>绝对核心指标。能扛住多次使用的寿命直接<span class="highlight">拉满满足感</span>。</div></div>
+                        <div class="list-item"><div><strong>半透明度(透视)：</strong>既防尘又能隐约看清底部编号，极大便利规划。</div></div>
+                        <div class="list-item"><div><strong>纸张厚度/强度：</strong>要有一定的结实感(Sturdy)，太薄易卷不能满足硬核玩家。</div></div>
+                        <div class="list-item"><div><strong>纸张数量与尺寸精准：</strong><span class="highlight">200 张</span>红线配置极具诱惑力；整齐划一的预切割深受好评。</div></div>
+                    </div>
+                </div>
+
+                <!-- 魅力需求 -->
+                <div class="card attr">
+                    <div class="card-header">魅力需求 (Attractive)</div>
+                    <div class="card-content">
+                        <div class="list-item"><div><strong>真双面涂层(一致性)：</strong>全网<span class="highlight">最大惊喜</span>。免分正反的 “傻瓜盲贴” ，终结了贴反毁画的恐惧。</div></div>
+                        <div class="list-item"><div><strong>完美的预切割尺寸：</strong>恰到好处的 4x4 尺寸或两规格混装，解决二次裁剪苦恼，提供极佳溢价感。</div></div>
+                        <div class="list-item"><div><strong>全功能工具箱与小赠品：</strong>实用的工具与指南被当做 “额外的礼物” ，拉开品牌好感度。</div></div>
+                        <div class="list-item"><div><strong>视听超预期体验：</strong>撕拉无声或比网图更闪的视觉，带来强烈的<span class="highlight">意外点赞</span>。</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 下排：中立与负面预警阵地 -->
+            <div class="row-bottom">
+                <!-- 无差异需求 (跨高占比较小) -->
+                <div class="card indiff">
+                    <div class="card-header">无差异需求 (Indifferent)</div>
+                    <div class="card-content">
+                        <div class="list-item"><div><strong>包装袋/盒的颜色设计：</strong>硬核用户奉行 “好用最重要” ，扔掉外壳无感，完全不影响购买。</div></div>
+                        <div class="list-item"><div><strong>纸张与贴纸的表面花纹：</strong>不管是胶带颜色还是离型纸花纹，只要实用，完全不在意。</div></div>
+                    </div>
+                </div>
+
+                <!-- 反向需求 (痛点槽点，比重大) -->
+                <div class="card reverse">
+                    <div class="card-header">反向需求 (Reverse - 避雷区)</div>
+                    <div class="card-content" style="flex-wrap: wrap;"> <!-- 提供更高兼容 -->
+                        <div class="list-item"><div><strong>极致轻薄(同质化)：</strong>导致产品像极了廉价 “羊皮纸/烤盘纸” ，品牌好感度秒降至<span class="highlight">冰点</span>。</div></div>
+                        <div class="list-item"><div><strong>廉价感极强的劣质赠品：</strong>胶带完全不粘被视作滥竽充数；刻刀太锋利划穿画布，引发大量<span class="highlight">差评与愤怒</span>。</div></div>
+                        <div class="list-item"><div><strong>过大的 Logo 标识：</strong>十分抢戏，严重抢夺完工照片美感，削弱创作者自我成就感。</div></div>
+                        <div class="list-item"><div><strong>物理属性过溢：</strong>硬度过高导致卷起存放时 “弹飞” ；反光度过高导致人辣眼/头晕。</div></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

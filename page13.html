@@ -1,0 +1,393 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离型纸需求综合分析</title>
+    <style>
+        /* ================= 核心约束定义 ================= */
+        :root {
+            /* 浅色极简商务配色 */
+            --bg-page: #F0F2F5;
+            --bg-ppt: #FFFFFF;
+            --bg-col: #F8F9FB;
+            --text-main: #1D2129;
+            --text-sub: #4E5969;
+            --text-muted: #86909C;
+            --border-light: #E5E6EB;
+            
+            /* Kano 标签体系 */
+            --tag-basic-bg: #E8F3FF;      --tag-basic-text: #165DFF; /* 基础-蓝 */
+            --tag-exp-bg: #E8FFEA;        --tag-exp-text: #00B42A;   /* 期望-绿 */
+            --tag-attr-bg: #F3E8FF;       --tag-attr-text: #722ED1;  /* 魅力-紫 */
+            --tag-rev-bg: #FFECE8;        --tag-rev-text: #F53F3F;   /* 反向-红 */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-page);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            /* [重要] 整体自适应字号微调，确保内容暴增后依然全盘容纳绝不溢出 */
+            font-size: min(1vw, 1.85vh); 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        /* 1. 画布刚性控制与 16:9 比例 */
+        .ppt-wrapper {
+            width: min(96vw, 1600px);
+            aspect-ratio: 16 / 9;
+            max-height: 98vh;
+            background: var(--bg-ppt);
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            padding: 2.2em 3em;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 标题栏 */
+        .header {
+            flex: 0 0 auto;
+            border-bottom: 2px solid var(--border-light);
+            padding-bottom: 1em;
+            margin-bottom: 1.2em;
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+        }
+        
+        .header p {
+            margin: 0.5em 0 0 0;
+            font-size: 1.1em;
+            color: var(--text-muted);
+        }
+
+        /* 2. 空间平铺布局网格 */
+        .content-grid {
+            flex: 1 1 auto;
+            min-height: 0;
+            display: grid;
+            /* 因中间专栏长文本增多，为其调配更宽裕比例：1.6 : 1.15 : 1 */
+            grid-template-columns: 1.6fr 1.15fr 1fr; 
+            gap: 1.2em;
+        }
+
+        .logic-col {
+            background: var(--bg-col);
+            border-radius: 12px;
+            padding: 1.2em;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            opacity: 0;
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* 复合右列，将硅油与配件维度上下堆叠拆分 */
+        .right-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2em;
+            min-height: 0;
+        }
+        
+        /* 比例平分：上为3卡片，下为1卡片，预分配高度比 */
+        .col-silicone { flex: 3; }
+        .col-acc { flex: 1.2; }
+
+        .logic-col:nth-child(1) { animation-delay: 0.1s; }
+        .logic-col:nth-child(2) { animation-delay: 0.2s; }
+        .right-wrapper { animation: fadeIn 0.6s ease-out forwards; animation-delay: 0.3s; opacity: 0; }
+
+        .logic-title {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin: 0 0 0.8em 0;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+        }
+        .logic-title::before {
+            content: "";
+            display: block;
+            width: 5px;
+            height: 1.2em;
+            background: var(--text-muted);
+            margin-right: 0.8em;
+            border-radius: 2px;
+        }
+
+        /* Flex & Grid 大小卡片铺放系统 */
+        .card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        /* 第一列需要容纳 6 个卡片，设立完美的 3 x 2 重叠网格 */
+        .physical-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr 1fr;
+            gap: 1em;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
+        /* 3. 无截断式卡片化设计 */
+        .item-card {
+            background: #FFFFFF;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 1em 1.2em;
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* 不论高度拉伸多少，纵向居中摆放文本 */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+            flex: 1; /* 每个卡均分列的整体纵向空间 */
+        }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+            border-color: #D5D8DF;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.6em;
+        }
+
+        /* 因素子分类作为卡片大标题 */
+        .item-title {
+            font-size: 1.1em;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        /* 取消任何截断语法的段落正文，绝对 100% 容纳长本文 */
+        .card-body {
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: var(--text-sub);
+            margin: 0;
+        }
+        
+        .margin-split {
+            display: block;
+            margin-top: 0.6em;
+        }
+
+        /* Tag 系统 */
+        .tag {
+            font-size: 0.72em;
+            font-weight: 700;
+            padding: 0.4em 0.8em;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        .tag-basic { background: var(--tag-basic-bg); color: var(--tag-basic-text); }
+        .tag-expected { background: var(--tag-exp-bg); color: var(--tag-exp-text); }
+        .tag-attractive { background: var(--tag-attr-bg); color: var(--tag-attr-text); }
+
+    </style>
+</head>
+<body>
+
+    <!-- 16:9 画布容器 -->
+    <div class="ppt-wrapper">
+        
+        <!-- 表头组件 -->
+        <header class="header">
+            <h1>离型纸需求综合分析</h1>
+            <p>基于核心物料特性重组的逻辑视图，原貌映射用户偏好偏重与反馈表现</p>
+        </header>
+
+        <!-- 主内容区：完全占用高度，三列平铺网格 -->
+        <main class="content-grid">
+            
+            <!-- 列 A：基纸维度 (容纳 6 条) -->
+            <section class="logic-col">
+                <h2 class="logic-title">一 / 基纸维度</h2>
+                <div class="physical-grid">
+                    
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">数量</span>
+                            <span class="tag tag-expected">期望需求</span>
+                        </div>
+                        <p class="card-body">追求性价比，偏好大数量离型纸</p>
+                    </div>
+
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">尺寸</span>
+                            <span class="tag tag-attractive">魅力需求</span>
+                        </div>
+                        <p class="card-body">相较于主流10*15cm，用户更偏好小尺寸，符合使用习惯同时可以免去二次裁剪麻烦</p>
+                    </div>
+
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">形状</span>
+                            <span class="tag tag-basic">基础需求</span>
+                        </div>
+                        <p class="card-body">保护胶水，避免离型纸之间的缝隙</p>
+                    </div>
+
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">厚度</span>
+                            <span class="tag tag-expected">期望需求</span>
+                        </div>
+                        <p class="card-body">厚实离型纸不易残留空气、产生褶皱、撕裂，令价值数百美金的画布胶水干涸或遭到破坏</p>
+                    </div>
+
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">材质</span>
+                            <span class="tag tag-expected">期望需求</span>
+                        </div>
+                        <p class="card-body">用户普遍存在透视符号需求</p> 
+                    </div>
+                    
+                    <div class="item-card">
+                        <div class="card-header">
+                            <span class="item-title">耳挂</span>
+                            <span class="tag tag-attractive">魅力需求</span>
+                        </div>
+                        <p class="card-body">添加提拉耳挂，实现1秒揭膜</p> 
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 列 B：印刷维度 (2条，单条文本体量极大) -->
+            <section class="logic-col">
+                <h2 class="logic-title">二 / 印刷维度</h2>
+                <div class="card-container">
+                    
+                    <div class="item-card" style="flex: 0.6;"> <!-- 利用弹簧比例控制不必要的过度拉长 -->
+                        <div class="card-header">
+                            <span class="item-title">外观</span>
+                            <span class="tag tag-attractive">魅力需求</span>
+                        </div>
+                        <p class="card-body">BeesCraftyCorners分区框外观备受赞誉</p>
+                    </div>
+
+                    <div class="item-card" style="flex: 2;">
+                        <div class="card-header">
+                            <span class="item-title">标识</span>
+                            <span class="tag tag-attractive">魅力需求</span>
+                        </div>
+                        <p class="card-body">
+                            BeesCraftyCorners鲜艳色彩分区框，不存在认知负担，能够一眼识别正反面，且彩色边框不能太宽，过多遮挡符号
+                            <!-- 为了不修改任何文字，仅加入间距切分保持版面最佳阅读体验 -->
+                            <span class="margin-split">DAC离型纸双面铺满logo，阻碍视野、存在油墨污染画布担忧/风险</span>
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- 列 C：右侧复合层 -->
+            <div class="right-wrapper">
+                
+                <!-- 硅油维度 (3条) -->
+                <section class="logic-col col-silicone">
+                    <h2 class="logic-title">三 / 硅油维度</h2>
+                    <div class="card-container">
+                        
+                        <div class="item-card">
+                            <div class="card-header">
+                                <span class="item-title">双层</span>
+                                <span class="tag tag-attractive">魅力需求</span>
+                            </div>
+                            <p class="card-body">双层硅油不用费力识别，无毁坏画布担忧</p>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="card-header">
+                                <span class="item-title">复用性（含量）</span>
+                                <span class="tag tag-expected">期望需求</span>
+                            </div>
+                            <p class="card-body">用户对离型产品复用性/耐用性有较高期待</p>
+                        </div>
+
+                        <div class="item-card">
+                            <div class="card-header">
+                                <span class="item-title">离型力（含量）</span>
+                                <span class="tag tag-basic">基础需求</span>
+                            </div>
+                            <p class="card-body">强离型，丝滑的剥离感，不伤画布</p>
+                        </div>
+
+                    </div>
+                </section>
+                
+                <!-- 新增：配件维度 (1条) -->
+                <section class="logic-col col-acc">
+                    <h2 class="logic-title">四 / 配件维度</h2>
+                    <div class="card-container">
+                        <div class="item-card">
+                            <div class="card-header">
+                                <span class="item-title">配件</span>
+                                <span class="tag tag-attractive">魅力需求</span>
+                            </div>
+                            <p class="card-body">实用，质量好的工具提升实用体验，劣质的工具反而招来差评</p>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+
+        </main>
+    </div>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

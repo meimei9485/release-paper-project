@@ -1,0 +1,388 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>透明度争议分析</title>
+  <style>
+    /* 全局格式与底层控制 */
+    * { 
+      margin: 0; padding: 0; box-sizing: border-box; 
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    
+    body {
+      width: 100vw; height: 100vh;
+      background-color: #0F172A; 
+      display: flex; justify-content: center; align-items: center;
+      overflow: hidden; 
+    }
+
+    /* 空间刚性锁定：16:9 画布 */
+    .ppt-canvas {
+      background: #FFFFFF;
+      position: relative;
+      width: 100%; height: 100%;
+      max-width: calc(98vh * 16 / 9); 
+      max-height: calc(100vw * 9 / 16); 
+      aspect-ratio: 16 / 9;
+      
+      container-type: inline-size; 
+      container-name: ppt;
+      
+      border-radius: 0.8cqw;
+      box-shadow: 0 4cqw 10cqw rgba(0, 0, 0, 0.5), inset 0 0 0.1cqw rgba(255, 255, 255, 0.4);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      animation: revealCanvas 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* 顶部页眉区 */
+    .header {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      padding: 1.8cqw 3cqw 1.2cqw;
+      border-bottom: 0.1cqw solid #E2E8F0;
+      background: #F8FAFC;
+    }
+    
+    .title-group { display: flex; align-items: baseline; gap: 1cqw; }
+    .title-group h1 { font-size: 2.2cqw; font-weight: 800; color: #0F172A; letter-spacing: -0.05cqw; }
+    .title-group .subtitle { font-size: 1cqw; color: #64748B; padding-left: 1cqw; border-left: 0.15cqw solid #CBD5E1; }
+    
+    .stats-group { display: flex; gap: 0.8cqw; }
+    .stat-pill { 
+      background: #FFFFFF; color: #334155; font-size: 0.8cqw; 
+      padding: 0.4cqw 1cqw; border-radius: 2cqw; font-weight: 600; 
+      border: 0.1cqw solid #CBD5E1; border-left: 0.3cqw solid #2563EB; box-shadow: 0 0.2cqw 0.5cqw rgba(0,0,0,0.02);
+    }
+
+    /* 核心区：双分栏对垒 (重塑为 3:2 比例) */
+    .main-body {
+      flex: 1; min-height: 0;
+      display: flex; gap: 2cqw;
+      padding: 1.5cqw 3cqw 2cqw;
+      background: #FFFFFF;
+    }
+
+    .left-section, .right-section { display: flex; flex-direction: column; gap: 1.2cqw; min-height: 0; }
+    
+    /* 需求4: 调整比例，左边约占 60% (3/5) 右边约40% (2/5) */
+    .left-section { width: 57%; }
+    .right-section { width: 43%; }
+
+    .section-title {
+      font-size: 1.1cqw; font-weight: 700; color: #1E293B; display: flex; align-items: center; gap: 0.5cqw;
+    }
+    .section-title::before { content: ""; width: 0.4cqw; height: 1cqw; background: #2563EB; border-radius: 0.2cqw; }
+
+    /* ========== 左侧：偏好呈现卡片块 ========== */
+    .pref-cards-wrapper { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.8cqw; }
+    
+    .pref-card {
+      flex: 1; min-height: 0;
+      border: 0.1cqw solid #E2E8F0; border-radius: 0.6cqw;
+      display: flex; overflow: hidden; background: #FAFAFA;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .pref-card:nth-child(1) { animation-delay: 0.1s; }
+    .pref-card:nth-child(2) { animation-delay: 0.2s; }
+    .pref-card:nth-child(3) { animation-delay: 0.3s; }
+
+    .pref-img {
+      width: 38%; /* 左侧空间扩大，图片本身占比可略微调优 */
+      background-size: cover; background-position: center;
+      position: relative;
+    }
+    .img-overlay-pct {
+      position: absolute; bottom: 0.5cqw; left: 0.5cqw;
+      background: rgba(15, 23, 42, 0.85); color: #FFF; font-size: 1.2cqw; font-weight: 800;
+      padding: 0.2cqw 0.6cqw; border-radius: 0.3cqw; backdrop-filter: blur(0.2cqw);
+    }
+    
+    .pref-content {
+      width: 62%; padding: 0.8cqw 1cqw 0.8cqw 1.8cqw;
+      display: flex; flex-direction: column; justify-content: center; gap: 0.5cqw;
+    }
+    .p-head { display: flex; align-items: baseline; gap: 0.5cqw; border-bottom: 0.1cqw dashed #CBD5E1; padding-bottom: 0.4cqw; margin-bottom: 0.2cqw;}
+    .p-title { font-size: 1cqw; font-weight: 800; color: #0F172A; }
+    .p-n { font-size: 0.75cqw; color: #64748B; font-weight: 600; }
+    
+    .p-logic-box { margin-bottom: 0.2cqw;}
+    .l-title { font-size: 0.8cqw; font-weight: 700; color: #2563EB; }
+    .l-desc { font-size: 0.8cqw; color: #475569; line-height: 1.4; margin-top: 0.2cqw; }
+
+
+    /* ========== 右侧：表格布局区 ========== */
+    .table-wrapper {
+      flex: 1; min-height: 0; display: flex; align-items: stretch;
+      animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: 0.4s;
+    }
+
+    table.strategy-table {
+      width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed;
+      border: 0.1cqw solid #E2E8F0; border-radius: 0.6cqw; background: #FFFFFF;
+      box-shadow: 0 0.5cqw 1.5cqw rgba(0,0,0,0.02);
+    }
+    
+    .strategy-table th { 
+      background: #F8FAFC; color: #475569; font-size: 0.85cqw; font-weight: 700; 
+      padding: 0.8cqw; text-align: left; border-bottom: 0.1cqw solid #E2E8F0;
+    }
+    
+    .strategy-table td { 
+      padding: 1cqw 0.8cqw; font-size: 0.8cqw; line-height: 1.5; color: #334155; 
+      border-bottom: 0.1cqw solid #F1F5F9; vertical-align: top;
+    }
+    .strategy-table tr:last-child td { border-bottom: none; }
+
+    /* 重设字段占比：适配右侧变窄的情况 */
+    .col-mat { width: 17%; text-align: center; }
+    .col-strat { width: 16%; font-weight: 600; color: #0F172A; }
+    .col-adv { width: 34%; }
+    .col-dis { width: 33%; }
+
+    /* 材质标签样式 */
+    .mat-tag { 
+      display: inline-block; padding: 0.3cqw 0.6cqw; border-radius: 0.4cqw; 
+      font-weight: 800; font-size: 0.75cqw; line-height: 1.3;
+    }
+    .tag-blue { background: #EFF6FF; color: #2563EB; }
+    .tag-orange { background: #FFF7ED; color: #EA580C; }
+
+    .pct-tag { font-size: 0.7cqw; color: #64748B; font-weight: 800; display: block; margin-top: 0.3cqw; }
+    
+    /* 强调用语 */
+    .bold-txt { font-weight: 800; color: #0F172A; }
+
+
+    /* ========== 结论输出层 ========== */
+    .conclusion-row { margin-top: auto; }
+    
+    .conclusion-box {
+      border: 0.1cqw solid #E2E8F0; padding: 1cqw 1.2cqw; border-radius: 0.6cqw;
+      display: flex; flex-direction: column; gap: 0.4cqw;
+      animation: slideUp 0.8s ease 0.6s both;
+    }
+    
+    /* 左偏好结论配色 */
+    .c-primary { background: #EFF6FF; border-left: 0.5cqw solid #2563EB; border-color: #BFDBFE; }
+    .c-primary .concl-tag { color: #1D4ED8; }
+    
+    /* 右定案结论配色 */
+    .c-secondary { background: #F8FAFC; border-left: 0.5cqw solid #0F172A; border-color: #E2E8F0; }
+    .c-secondary .concl-tag { color: #0F172A; }
+
+    .concl-tag { font-size: 0.75cqw; font-weight: 800; text-transform: uppercase; }
+    .concl-text { font-size: 0.9cqw; color: #1E293B; line-height: 1.6; font-weight: 500;}
+    .concl-text strong { font-weight: 800; color: #0F172A; }
+    
+    /* 针对要求2的陈列换行排版项 */
+    .point-item { display:flex; align-items:baseline; margin-bottom: 0.4cqw; }
+    .point-item:last-child { margin-bottom: 0; }
+    
+    /* 专有蓝字高亮 (左侧结论用)*/
+    .t-blue { color: #2563EB !important; }
+
+    /* 动画 */
+    @keyframes revealCanvas { 0% { opacity: 0; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+    @keyframes slideUp { 0% { opacity: 0; transform: translateY(2cqw); } 100% { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div class="ppt-canvas">
+    
+    <!-- 全局页眉 -->
+    <header class="header">
+      <div class="title-group">
+        <h1>透明度争议分析</h1>
+        <div class="subtitle">偏好数据验证分析与离型材质产品战略定案</div>
+      </div>
+      <div class="stats-group">
+        <div class="stat-pill">有效样本 N = 77</div>
+        <div class="stat-pill">总占比 N = 1,038</div>
+      </div>
+    </header>
+
+    <main class="main-body">
+      
+      <!-- ============ 左侧半场：偏好验证 (扩大空间至占比近 ~60%) ============ -->
+      <section class="left-section">
+        <div class="section-title">01 / 离型透明度偏好对比</div>
+        
+        <div class="pref-cards-wrapper">
+          <!-- 全透明 -->
+          <div class="pref-card">
+            <div class="pref-img" style="background-image: url('https://wp-cdn.4ce.cn/v2/dy1Dgey.png');">
+              <div class="img-overlay-pct">59.74%</div>
+            </div>
+            <div class="pref-content">
+              <div class="p-head">
+                <span class="p-title">全透明 / 高清</span> <span class="p-n">(N=46)</span>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title">行为逻辑 - 透视预判</div>
+                <div class="l-desc">揭膜前识别色块与碎钻区；支持“循迹规划”进行跨区颜色追踪。</div>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title" style="color: #64748B;">心理动机 - 效能掌控</div>
+                <div class="l-desc">消除信息不对称，进行精准时间预算。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 半透明 (需求1：调换了半透与纯白的配图背景) -->
+          <div class="pref-card">
+            <div class="pref-img" style="background-image: url('https://wp-cdn.4ce.cn/v2/d5TdC0G.png');">
+              <div class="img-overlay-pct" style="font-size: 1.1cqw; background: rgba(234, 88, 12, 0.85); color: #fff;">15.58%</div>
+            </div>
+            <div class="pref-content">
+              <div class="p-head">
+                <span class="p-title">半透明 / 磨砂</span> <span class="p-n">(N=12)</span>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title">行为逻辑 - 光控显影</div>
+                <div class="l-desc">常光下屏蔽噪音，开启拷贝台时透出符号；减少塑料反光带来的视觉疲劳。</div>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title" style="color: #64748B;">心理动机 - 感官平衡</div>
+                <div class="l-desc">在导航便利与心理减压之间寻找折中点。</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 纯白 (需求1：调换了半透与纯白的配图背景) -->
+          <div class="pref-card">
+            <div class="pref-img" style="background-image: url('https://wp-cdn.4ce.cn/v2/bC9utjf.png');">
+              <div class="img-overlay-pct" style="font-size: 1.1cqw; background: rgba(71, 85, 105, 0.85); color: #fff;">24.68%</div>
+            </div>
+            <div class="pref-content">
+              <div class="p-head">
+                <span class="p-title">不透明 / 纯白</span> <span class="p-n">(N=19)</span>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title">行为逻辑 - 视觉清屏</div>
+                <div class="l-desc">彻底遮盖未完成符号，通过物理屏蔽缓解焦虑；利用白纸与画布建立强对比。</div>
+              </div>
+              <div class="p-logic-box">
+                <div class="l-title" style="color: #64748B;">心理动机 - 心理避风港</div>
+                <div class="l-desc">缓解“被淹没感 (Overwhelmed)”，提供即时成就感。</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 需求2：文案更新 -->
+        <div class="conclusion-row">
+          <div class="conclusion-box c-primary">
+            <div class="concl-tag">Part 1 - 偏好确认关键结论</div>
+            <div class="concl-text">
+              <strong>75.42%</strong> 的用户要求具备透明度（全透<span class="t-blue">59.74%</span>+半透<span class="t-blue">15.58%</span>），以实现数据的<strong>“预读”</strong>功能，符号可视需求偏向明显。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 右侧半场：对比与定夺 (=占40%) ============ -->
+      <section class="right-section">
+        <div class="section-title">02 / 全透明/半透明方案优劣势对比</div>
+        
+        <div class="table-wrapper">
+          <!-- 需求3：表格内容原封不动精准还原 -->
+          <table class="strategy-table">
+            <thead>
+              <tr>
+                <th class="col-mat">推演材质</th>
+                <th class="col-strat">产品策略</th>
+                <th class="col-adv">优点</th>
+                <th class="col-dis">劣势</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- 全透明原文对比 -->
+              <tr>
+                <td class="col-mat">
+                  <span class="mat-tag tag-blue">全透明 / 高清</span>
+                  <span style="font-size: 0.6cqw; color: #64748B; display: block;">(HD Clear)</span>
+                </td>
+                <td class="col-strat">
+                  专业效能管理系统
+                  <span class="pct-tag">占比：59.74%</span>
+                </td>
+                <td>
+                  <span class="bold-txt">极致效率：</span>支持“循迹切割”与“精准预判”。玩家可绕过格子，按图案边缘不规则剪裁以处理同色块。
+                </td>
+                <td>
+                  由于太透导致“边缘消失”，易点错位置（边框设计可解决）；强光下存在眩光干扰。
+                </td>
+              </tr>
+              <!-- 半透明原文对比 -->
+              <tr>
+                <td class="col-mat">
+                  <span class="mat-tag tag-orange">半透明 / 磨砂</span>
+                  <span style="font-size: 0.6cqw; color: #64748B; display: block;">(Translucent)</span>
+                </td>
+                <td class="col-strat">
+                  极致心流与护眼
+                  <span class="pct-tag">占比：15.58%</span>
+                </td>
+                <td>
+                  自带物理边界感，光线柔和，减少视觉噪音。
+                </td>
+                <td>
+                  <span class="bold-txt">效能损耗：</span>识别效率低，将产品降级为“盲盒模式”。微小符号在半透下会产生“虚化”，剥夺了玩家在揭膜前的预判权。
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 需求2：文案更新与强制换行陈列排版 -->
+        <div class="conclusion-row">
+          <div class="conclusion-box c-secondary">
+            <div class="concl-tag">Part 2 - 最终产品线定夺结论</div>
+            <div class="concl-text">
+              
+              <!-- 阵列排版 1 -->
+              <div class="point-item">
+                <div><strong>全透明视窗提供“高清地图”：</strong>59.74% 的高阶用户选择全透，是因为其“导航价值”远超半透的“减压价值”，离型膜产品定位是专业效能提升工具。</div>
+              </div>
+              
+              <!-- 阵列排版 2 -->
+              <div class="point-item">
+                <div><strong>AR 抗眩光：</strong>采用 AR 涂层解决全透明方案强光反射对眼脑的困扰。</div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

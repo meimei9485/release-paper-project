@@ -1,0 +1,350 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>竞品核心参数交叉分析</title>
+    <style>
+        /* ==========================================================
+           1. 基础重置与底层设定
+           ========================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+        }
+        /* ==========================================================
+           2. 16:9 画布精准控制极限框架
+           ========================================================== */
+        .slide-frame {
+            width: 96vw;
+            max-width: calc(100vh * 16 / 9 * 0.96);
+            aspect-ratio: 16 / 9;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.05);
+            display: flex;
+            flex-direction: column;
+            padding: 2.2% 2.8%;
+            position: relative;
+        }
+        /* ==========================================================
+           3. 头部标题设计
+           ========================================================== */
+        .header {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5%;
+        }
+        .header h1 {
+            font-size: min(2.6vw, 4vh);
+            font-weight: 800;
+            color: #0f172a;
+            position: relative;
+            padding-left: min(1.2vw, 1.8vh);
+            letter-spacing: 0.03em;
+        }
+        .header h1::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 15%;
+            height: 70%;
+            width: 5px;
+            background: linear-gradient(to bottom, #2563eb, #3b82f6);
+            border-radius: 4px;
+        }
+        /* ==========================================================
+           4. 智能动态网格系统 (防溢出核心修正)
+           ========================================================== */
+        .data-viewport {
+            flex: 1;
+            min-height: 0;
+            background-color: #e2e8f0;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            display: grid;
+            grid-template-columns: minmax(3%, 38px) minmax(4.5%, 65px) repeat(5, minmax(0, 1.25fr)) minmax(0, 0.9fr);
+            
+            /* 
+               核心修复：
+               将 repeat(11, minmax(0, 1fr)) 更改为 repeat(11, minmax(min-content, 1fr))
+               意味着任何时候如果文字多，盒子会自适应撑开包住文字，绝不会出现遮挡！ 
+            */
+            grid-template-rows: auto repeat(11, minmax(min-content, 1fr));
+            gap: 1px; 
+            overflow: hidden;
+        }
+        /* ==========================================================
+           5. 单元格基础美学与排版 (动态紧凑尺寸)
+           ========================================================== */
+        .cell {
+            background-color: #ffffff;
+            /* 缩紧了多行环境下的垂直内边距，给文字腾空间 */
+            padding: min(0.4vw, 0.6vh) min(0.6vw, 0.8vh);
+            font-size: min(0.78vw, 1.25vh); /* 极致收缩，容纳11行海量数据 */
+            line-height: 1.4;
+            color: #334155;
+            display: flex;
+            flex-direction: column; 
+            justify-content: center;
+            word-break: break-word;
+            overflow: visible;
+        }
+        .align-center {
+            align-items: center;
+            text-align: center;
+            height: 100%;
+        }
+        /* ==========================================================
+           6. 信息层级高亮策略
+           ========================================================== */
+        .cell strong {
+            color: #1d4ed8;
+            font-weight: 700;
+            background: #eff6ff;
+            padding: 0 4px;
+            border-radius: 3px;
+            margin-right: 2px;
+            display: inline-block;
+            margin-bottom: 2px; /* 标签化隔离 */
+        }
+        .cell.empty {
+            color: #94a3b8;
+            font-weight: 300;
+        }
+        /* ==========================================================
+           7. 分类列与防重叠绝对防御代码
+           ========================================================== */
+        .cell.category {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: min(1.1vw, 1.6vh);
+            font-weight: 600;
+            padding: 0;
+            align-items: center;
+        }
+        .cell.category .vertical-text {
+            width: 1.2em;
+            word-wrap: break-word;
+            /* 行高下调至1.8，确保即使1行高度也能完美塞下2个垂直排列的汉字 */
+            line-height: 1.8; 
+            display: inline-block;
+            text-align: center;
+        }
+        .cell.factor {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            align-items: center;
+            text-align: center;
+        }
+        .cell.header-cell {
+            background: #f8fafc;
+            text-align: center;
+            font-weight: 700;
+            color: #1e293b;
+            font-size: min(0.85vw, 1.35vh);
+            padding: min(0.5vw, 0.8vh);
+            align-items: center;
+            gap: 4px;
+        }
+        .header-cell img {
+            height: min(2vw, 3vh);
+            width: auto;
+            max-width: 90%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,0.05));
+        }
+        .cell.analysis {
+            background: #f0f7ff;
+            color: #0f172a;
+            font-weight: 500;
+            border-left: 2px dashed #93c5fd;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div class="slide-frame">
+    <!-- 顶栏标题 -->
+    <div class="header">
+        <h1>竞品核心参数交叉分析</h1>
+    </div>
+    <!-- 表格载体 -->
+    <div class="data-viewport">
+        <!-- ================= 表头 ================= -->
+        <div class="cell header-cell">物料</div>
+        <div class="cell header-cell">因素</div>
+        <div class="cell header-cell">
+            <img src="https://wp-cdn.4ce.cn/v2/uASGDFQ.png" alt="ARTDOT">
+            <span>ARTDOT</span>
+        </div>
+        <div class="cell header-cell">
+            <img src="https://wp-cdn.4ce.cn/v2/momr564.png" alt="Calsoling">
+            <span>Calsoling</span>
+        </div>
+        <div class="cell header-cell">
+            <img src="https://wp-cdn.4ce.cn/v2/PRF0k6J.png" alt="DAC">
+            <span>DAC</span>
+        </div>
+        <div class="cell header-cell">
+            <img src="https://wp-cdn.4ce.cn/v2/T5y67KP.jpeg" alt="Reddit">
+            <span>Reddit</span>
+        </div>
+        <div class="cell header-cell">
+            <img src="https://wp-cdn.4ce.cn/v2/K6xVQSg.png" alt="BeesCraftyCorners">
+            <span>BeesCraftyCorners</span>
+        </div>
+        <div class="cell header-cell" style="background:#e0f2fe; color:#0369a1;">分析</div>
+        
+        <!-- ================= 第1行：基纸-数量 ================= -->
+        <div class="cell category" style="grid-row: span 5"><span class="vertical-text">基纸</span></div>
+        <div class="cell factor">数量</div>
+        <div class="cell"><div><strong>200pcs：</strong>超大容量。竞对多为 50/100 张。用户评价为 "Great value for the price"</div></div>
+        <div class="cell"><div><strong>300pcs：</strong>数量处于市场第一梯队，量大感知明显</div></div>
+        <div class="cell"><div><strong>200pcs：</strong>优势：极高性价比。用户评价 “足够用三个轮回”</div></div>
+        <div class="cell"><div><strong>200pcs：</strong>可重复性高，该量级通常被用户称为 “一辈子够用”</div></div>
+        <div class="cell"><div><strong>8 - 12 pcs：</strong>用户会计算 “单帧价格” 来衡量性价比</div></div>
+        <div class="cell analysis">主流离型纸数以百张，用户追求性价比</div>
+        
+        <!-- ================= 第2行：基纸-尺寸 ================= -->
+        <div class="cell factor">尺寸</div>
+        <div class="cell"><div><strong>10x15cm*200pcs：</strong>黄金尺寸，适合分块操作。用户反馈 "The size is big enough to cover a good amount... yet good for smaller designs"</div></div>
+        <div class="cell"><div><strong>10x15cm*150pcs、15x15cm*150pcs：</strong>竞对多为单一尺寸，混装更能适配微小局部和常规分区</div></div>
+        <div class="cell"><div><strong>10x10cm*200pcs：</strong>尺寸大于部分常见小方块（多为 3×3），覆盖效率更高，且正方形切割比长方形更易于对齐</div></div>
+        <div class="cell"><div><strong>4 × 6 英寸 (约 10 × 15 cm)：</strong>用户反馈最适合中大型画布，自行裁剪为 3x3、2x2（用户最爱的专注块尺寸）</div></div>
+        <div class="cell"><div><strong>3×3, 4×3, 4×4, 4×5, 5×5 (英寸)：</strong>尺寸多样性决定了其能否适配不同难度的画作分块需求</div></div>
+        <div class="cell analysis">尺寸偏好看Reddit反馈，用户偏好小尺寸，是用户的专注尺寸</div>
+        
+        <!-- ================= 第3行：基纸-形状 ================= -->
+        <div class="cell factor">形状</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>预裁切正方形：</strong>方便拼接覆盖，省去了自裁切羊皮纸的风险和麻烦</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">合适的预裁切形状可以省去用户自裁的麻烦</div>
+        
+        <!-- ================= 第4行：基纸-厚度 ================= -->
+        <div class="cell factor">厚度</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>轻薄型：</strong>质感接近描摹纸，结构强度低于 Artdot 等加厚品牌。</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>高克重加厚：</strong>比原装薄片更重，不易因静电漂浮，隔绝宠物毛发的物理性更强</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">更厚产品画面覆盖能力更好，避免画布侵蚀</div>
+        
+        <!-- ================= 第5行：基纸-材质 ================= -->
+        <div class="cell factor">材质</div>
+        <div class="cell"><div><strong>半透明：</strong>平衡点。比原装膜厚（不卷边），但足够透明（可见底稿）。评论称 "nice thickness... you can see through them"</div></div>
+        <div class="cell"><div><strong>高半透明：</strong>符号清晰可见 (Symbols visible)，比大多数乳白色厚纸更易定位</div></div>
+        <div class="cell"><div><strong>半透明：</strong>兼顾了 “防尘遮盖” 与 “背光透视”。用户反馈在背光板下能看清底部编号</div></div>
+        <div class="cell"><div><strong>半透明：</strong>允许在灯板（Light Pad）配合下清晰呈现画布背后的符号，支持 “看图下钻”</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">用户普遍/明显存在透视离型纸底下的符号需求</div>
+        
+        <!-- ================= 第6行：印刷-外观 ================= -->
+        <div class="cell category" style="grid-row: span 2; background: #1e293b;">
+            <span class="vertical-text">印刷</span>
+        </div>
+        <div class="cell factor">外观</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>闪粉、全息 、色移、哑光、亮面：</strong>材质纹理越丰富，视觉溢价越高（评论重点关注视觉冲击力）</div></div>
+        <div class="cell analysis">当前市面上的离型产品仅BeesCraftyCorners做了外观差异化，后续深入研究</div>
+        
+        <!-- ================= 第7行：印刷-标识 ================= -->
+        <div class="cell factor">标识</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>正反标识：</strong>清晰标识帮助一眼区分正反面，没有认知负担，且标识或边框不能过宽，过多遮挡符号</div></div>
+        <div class="cell analysis">清晰标识帮助识别正反面，但不宜过大过宽</div>
+        
+        <!-- ================= 第8行：硅油-双层 ================= -->
+        <div class="cell category" style="grid-row: span 3; background: #334155;">
+            <span class="vertical-text">硅油</span>
+        </div>
+        <div class="cell factor">双层</div>
+        <div class="cell"><div><strong>双面硅油：</strong>第一卖点。用户提及率极高，解决单面离型纸 “贴反毁画” 的致死痛点</div></div>
+        <div class="cell"><div><strong>双面硅油：</strong>盲贴不粘，规避单面离型纸贴反导致的 “毁画” 风险</div></div>
+        <div class="cell"><div><strong>双面硅油：</strong>盲贴设计，两面均不粘胶水。由于纸张较厚，耐用度远超普通蜡纸。</div></div>
+        <div class="cell"><div><strong>双面硅油：</strong>彻底杜绝 “贴反毁画”，这是普通羊皮纸或单面纸无法比拟的安全性</div></div>
+        <div class="cell align-center">无膜片</div>
+        <div class="cell analysis">用户明显偏好双面硅油，不用费力识别，也没有毁画风险</div>
+        
+        <!-- ================= 第9行：硅油-复用性 ================= -->
+        <div class="cell factor">含量-复用性</div>
+        <div class="cell"><div><strong>高复用性：</strong>耐用性。单张可跨项目使用。用户评价 "I have used the same sheets for like seven different paintings"</div></div>
+        <div class="cell"><div><strong>低复用性：</strong>受厚度限制，剥离后易卷曲，复用率低于竞对加厚款，有限复用 (1-3 次)</div></div>
+        <div class="cell"><div><strong>高复用性：</strong>虽单价可能略高，但单张可跨项目使用（有用户反馈一张纸陪伴画作 3 个月仍保持性能）</div></div>
+        <div class="cell"><div><strong>高复用性：</strong>单张纸在轻微卷边前提下，可反复跨 5-10 个项目周转，不易破损剥落</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">用户偏好可多次重复使用的理性产品</div>
+        
+        <!-- ================= 第10行：硅油-离型力 ================= -->
+        <div class="cell factor">含量-离型力</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>剥离性佳：</strong>用户反馈 “release easily”，不会拉扯画布上的胶水残留</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell"><div><strong>超轻剥离感：</strong>撕开时无 “塑料刺耳声（Crinkle-free）”，支持 ASMR 级别的手感</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">用户偏好剥离感好的离型纸，不会存在画布毁坏问题</div>
+        
+        <!-- ================= 第11行：配件 (不遮挡防溢出处理) ================= -->
+        <div class="cell category" style="background: #475569;">
+            <span class="vertical-text">配件</span>
+        </div>
+        <div class="cell factor">配件</div>
+        <div class="cell"><div><strong>4 合 1 套装：</strong>(纸+刀+矫正器+胶带) 全流程覆盖。附送工艺刀和钻石对齐工具是加分项</div></div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell">
+            <div style="margin-bottom: 2px;"><strong>低粘工艺胶带：</strong>用于修饰边缘/切割标记，需注意弱粘以免残留。</div>
+            <div><strong>精密手术刀：</strong>用于切除覆盖层，需告知用户“轻力”规则。</div>
+        </div>
+        <div class="cell empty align-center">—</div>
+        <div class="cell analysis">配件是加分项，但若配件质量不好，反而增加差评，需要注意</div>
+    </div>
+</div>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

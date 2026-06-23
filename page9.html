@@ -1,0 +1,321 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离型纸竞品交叉分析 - 通用需求特征与产品战略模型</title>
+    <style>
+        /* 系统级防溢出与边界重置 */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { display: none; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #1e293b; 
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* 刚性 16:9 视口容器 */
+        .ppt-viewport {
+            width: 96vw; max-width: 1700px;
+            aspect-ratio: 16 / 9; max-height: 98vh; min-height: 0;
+            background-color: #f8fafc; 
+            border-radius: 12px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column;
+            container-type: size; 
+            padding: 2.5cqh 3cqi; 
+            overflow: hidden;
+        }
+        
+        /* 页面战略头 */
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            flex-shrink: 0; margin-bottom: 2cqh;
+            border-bottom: 2px solid #e2e8f0; padding-bottom: 1.2cqh;
+        }
+        .title-block h1 { font-size: 3.4cqh; font-weight: 900; color: #0f172a; letter-spacing: 0.1cqh; }
+        .title-block p { font-size: 1.5cqh; font-weight: 500; color: #64748b; margin-top: 0.8cqh; }
+        .tag-line { font-size: 1.7cqh; font-weight: 700; color: #0284c7; background: #f0f9ff; padding: 0.8cqh 1.2cqi; border-radius: 6px; }
+        
+        /* 黄金 2x2 战略矩阵网格 (极限撑满所有空间) */
+        .matrix-grid {
+            flex: 1; min-height: 0;
+            display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr;
+            gap: 1.8cqh 2.2cqi; 
+        }
+        
+        /* 象限卡片通用本体 */
+        .quadrant-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0; border-radius: 10px;
+            display: flex; flex-direction: column;
+            padding: 1.6cqh 1.8cqi; overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+            transition: transform 0.3s;
+        }
+        .quadrant-card:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.06); }
+        
+        /* 卡片情绪头 */
+        .card-head { display: flex; flex-direction: column; margin-bottom: 1.2cqh; flex-shrink: 0;}
+        .card-title-row { display: flex; align-items: center; gap: 0.8cqi; margin-bottom: 0.6cqh; }
+        .q-icon { font-size: 2.4cqh; }
+        .q-title { font-size: 2cqh; font-weight: 800; }
+        .q-insight { font-size: 1.35cqh; font-weight: 600; color: #64748b; border-bottom: 1px dashed #cbd5e1; padding-bottom: 1cqh; line-height: 1.4; }
+        
+        /* 内部拉伸式结构，自动适应剩余所有无白空间 */
+        .card-body {
+            flex: 1; min-height: 0;
+            display: flex; flex-direction: column; 
+            gap: 0.8cqh;
+        }
+        
+        /* 结构化洞察独立行 (Flex 拉伸高度填充，坚决不留白) */
+        .insight-item {
+            flex: 1; 
+            display: flex; flex-direction: column; justify-content: center; 
+            gap: 0.4cqh;
+            padding: 0.8cqh 1.2cqi; border-radius: 6px; background: #f8fafc;
+            border-left: 4px solid transparent;
+            transition: background 0.2s;
+        }
+        .insight-item:hover { background: #f1f5f9; }
+        .item-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5cqi; }
+        
+        /* 标题与同传标签的内敛式排版 */
+        .item-label { font-size: 1.55cqh; font-weight: 800; color: #1e293b; line-height: 1.35; }
+        .sub-tags { font-size: 1.35cqh; font-weight: 500; color: #64748b; }
+        
+        /* 强化与放大的核心峰值数据标签 */
+        .peack-badge {
+            font-size: 1.6cqh; 
+            font-weight: 900; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+            padding: 0.3cqh 0.8cqi; 
+            border-radius: 5px; 
+            flex-shrink: 0;
+            align-self: flex-start;
+            white-space: nowrap;
+        }
+        
+        /* 正文体 */
+        .item-body { font-size: 1.32cqh; font-weight: 500; color: #475569; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* 四重维度的极端色彩与审美约束 */
+        .q-title.fire { color: #dc2626; }
+        .card-fire { border-top: 4px solid #ef4444; }
+        .item-fire { border-left-color: #fca5a5; }
+        .badge-fire { background: #fee2e2; color: #b91c1c; }
+        
+        .q-title.check { color: #16a34a; }
+        .card-check { border-top: 4px solid #22c55e; }
+        .item-check { border-left-color: #86efac; }
+        .badge-check { background: #dcfce7; color: #15803d; }
+        
+        .q-title.meh { color: #ea580c; }
+        .card-meh { border-top: 4px solid #f97316; }
+        .item-meh { border-left-color: #fdba74; }
+        .badge-meh { background: #ffedd5; color: #c2410c; }
+        
+        .q-title.cross { color: #7f1d1d; }
+        .card-cross { border-top: 4px solid #b91c1c; background: #fffcfc;}
+        .item-cross { border-left-color: #ef4444; background: #fff1f2; }
+        .item-cross:hover { background: #ffe4e6; }
+        .badge-cross { background: #991b1b; color: #ffffff; }
+    </style>
+</head>
+<body>
+<div class="ppt-viewport">
+    
+    <header class="header">
+        <div class="title-block">
+            <!-- 仅在此处修改了标题 -->
+            <h1>离型纸竞品交叉分析</h1>
+            <p>钻石画离型纸品类：通用需求特征与产品战略模型</p>
+        </div>
+        <div class="tag-line">全频段洞察架构 (4D Insights Matrix)</div>
+    </header>
+    
+    <main class="matrix-grid">
+        <!-- 🔥 惊喜护城河 -->
+        <article class="quadrant-card card-fire">
+            <header class="card-head">
+                <div class="card-title-row">
+                    <span class="q-icon">🔥</span>
+                    <span class="q-title fire">强烈惊喜（差异化杀手锏）</span>
+                </div>
+                <div class="q-insight">核心洞察：用户不只在买一张纸，而是在买“长效工具、时间管理工具与美学慰藉”。这是摆脱价格战、创造高溢价的四大破局点。</div>
+            </header>
+            <div class="card-body">
+                <!-- 排序 1：11%~12%+ -->
+                <div class="insight-item item-fire">
+                    <div class="item-head">
+                        <span class="item-label">【极长效寿命与极限耐用度】<span class="sub-tags">：跨项目循环使用 / 无限续航 / 高耐用</span></span>
+                        <span class="peack-badge badge-fire">11%~12%+</span>
+                    </div>
+                    <div class="item-body">材质的耐久度是第一护城河。用户愿意为那些能“陪伴终身”的高厚度材质支付极高单价。</div>
+                </div>
+                <!-- 排序 2：9%+ -->
+                <div class="insight-item item-fire">
+                    <div class="item-head">
+                        <span class="item-label">【傻瓜式双面涂层盲贴机制】<span class="sub-tags">：双面可用 / 无脑盲贴防止贴反 / 无需区分正反面</span></span>
+                        <span class="peack-badge badge-fire">9%+</span>
+                    </div>
+                    <div class="item-body">降低使用门槛的防呆设计极易引发好评。取消正反面之分是懒人经济的最佳应用。</div>
+                </div>
+                <!-- 排序 3：8%+ -->
+                <div class="insight-item item-fire">
+                    <div class="item-head">
+                        <span class="item-label">【全息动感与治愈的文创溢价】<span class="sub-tags">：色彩全息闪烁 / 饱和色彩 / 整体美学提升</span></span>
+                        <span class="peack-badge badge-fire">8%+</span>
+                    </div>
+                    <div class="item-body">颜值即正义。带有星空或治愈图案的文创外观升级，能释放恐怖的高频复购能力。</div>
+                </div>
+                <!-- 排序 4：7%~8%+ -->
+                <div class="insight-item item-fire">
+                    <div class="item-head">
+                        <span class="item-label">【切割焦虑的进度锚点工具属性】<span class="sub-tags">：标准一小时创作块 / 精准控制进度 / 高效物理分区 / 缓解大项目焦虑</span></span>
+                        <span class="peack-badge badge-fire">7%~8%+</span>
+                    </div>
+                    <div class="item-body">揭示品类最深层情绪价值，把浩大工程横切成每日“小确幸”，本质是时间规划解压工具。</div>
+                </div>
+            </div>
+        </article>
+        
+        <!-- ✅ 及格底座 -->
+        <article class="quadrant-card card-check">
+            <header class="card-head">
+                <div class="card-title-row">
+                    <span class="q-icon">✅</span>
+                    <span class="q-title check">满意确认（行业及格底线）</span>
+                </div>
+                <div class="q-insight">核心洞察：这是替代原装塑料薄膜的“最基本履约要求”。缺失任何一条，都会直接导致退货或被淘汰。</div>
+            </header>
+            <div class="card-body">
+                <!-- 排序 1：9%+ -->
+                <div class="insight-item item-check">
+                    <div class="item-head">
+                        <span class="item-label">【完美静音化环境营造】<span class="sub-tags">：消除噪音与操作阻碍 / 反感原装塑料声(Crinkle)</span></span>
+                        <span class="peack-badge badge-check">9%+</span>
+                    </div>
+                    <div class="item-body">解决手工玩家夜间创作怕吵到家人的痛点。</div>
+                </div>
+                <!-- 排序 2：8%+ -->
+                <div class="insight-item item-check">
+                    <div class="item-head">
+                        <span class="item-label">【清晰符号透视与绝对防粘物理隔离】<span class="sub-tags">：符号透视辅助定位 / 手部隔离防汗 / 防宠物毛发与环境粉尘</span></span>
+                        <span class="peack-badge badge-check">8%+</span>
+                    </div>
+                    <div class="item-body">半透明度必须既能挡灰又能看清底图符号。这是物理覆盖功能的强制验收标准。</div>
+                </div>
+                <!-- 排序 3：5%~6%+ -->
+                <div class="insight-item item-check">
+                    <div class="item-head">
+                        <span class="item-label">【稳健的基础离型力】<span class="sub-tags">：绝不坏画底胶 / 可反复定位不伤画 / 物理功能完美稳定</span></span>
+                        <span class="peack-badge badge-check">5%~6%+</span>
+                    </div>
+                    <div class="item-body">最核心的安全底牌，怎么贴都不能带走画布上原有的胶水。</div>
+                </div>
+            </div>
+        </article>
+        
+        <!-- 😐 弯道超车 -->
+        <article class="quadrant-card card-meh">
+            <header class="card-head">
+                <div class="card-title-row">
+                    <span class="q-icon">😐</span>
+                    <span class="q-title meh">有所保留（慢性痛点与弯道超车机会）</span>
+                </div>
+                <div class="q-insight">核心洞察：全行业都在忍耐的“别扭感”。针对这些痛点进行微小结构创新或周边优化，能极低成本截流竞品用户。</div>
+            </header>
+            <div class="card-body">
+                <!-- 排序 1：2.8%+ -->
+                <div class="insight-item item-meh">
+                    <div class="item-head">
+                        <span class="item-label">【小作坊式的尺寸公差与视觉落差】<span class="sub-tags">：物理尺寸误差及网图视觉落差</span></span>
+                        <span class="peack-badge badge-meh">2.8%+</span>
+                    </div>
+                    <div class="item-body">高颜值产品常伴随意裁切偏位等问题。<b>（超车机会：用工业级高精度模具去降维打击）</b>。</div>
+                </div>
+                <!-- 排序 2：2.4%+ -->
+                <div class="insight-item item-meh">
+                    <div class="item-head">
+                        <span class="item-label">【厚硬材质引发的静态边缘起翘】<span class="sub-tags">：静态使用时的起翘 / 滑落与无法固定</span></span>
+                        <span class="peack-badge badge-meh">2.4%+</span>
+                    </div>
+                    <div class="item-body">耐用与服帖难以兼得。<b>（超车机会：开发带有微静电吸附或微量阻尼感的新材质）</b>。</div>
+                </div>
+                <!-- 排序 3：2.3%+ -->
+                <div class="insight-item item-meh">
+                    <div class="item-head">
+                        <span class="item-label">【廉价附属配件反噬主体质量感】<span class="sub-tags">：附赠胶带完全没有粘度</span></span>
+                        <span class="peack-badge badge-meh">2.3%+</span>
+                    </div>
+                    <div class="item-body">主品很强附件极差会导致整体评价降级。<b>（超车机会：宁可不送，要送就送高品质周边）</b>。</div>
+                </div>
+            </div>
+        </article>
+        
+        <!-- ❌ 死亡熔断 -->
+        <article class="quadrant-card card-cross">
+            <header class="card-head">
+                <div class="card-title-row">
+                    <span class="q-icon">❌</span>
+                    <span class="q-title cross">强烈不满（极其致命的业务熔断红线）</span>
+                </div>
+                <div class="q-insight">核心洞察：用户容忍度的绝对底线。触碰以下任何一点，必遭惨烈的一星差评反噬与社区联合抵制。</div>
+            </header>
+            <div class="card-body">
+                <!-- 排序 1：8%+ -->
+                <div class="insight-item item-cross">
+                    <div class="item-head">
+                        <span class="item-label">【低克重薄纸碎裂导致的不可逆“毁画”】<span class="sub-tags">：质感极薄如组织纸 / 撕裂残留在画布上 / 直接摧毁到底胶</span></span>
+                        <span class="peack-badge badge-cross">8%+</span>
+                    </div>
+                    <div class="item-body"><b>全类目最恶劣灾难。</b>太薄撕不下来等于摧毁几十小时心血，仇恨拉满必死。</div>
+                </div>
+                <!-- 排序 2：1.6%+ -->
+                <div class="insight-item item-cross">
+                    <div class="item-head">
+                        <span class="item-label">【切割工具伤害画芯的终极安全隐患】<span class="sub-tags">：金属刀片切穿底层画布 / 误伤画作封边风险</span></span>
+                        <span class="peack-badge badge-cross">1.6%+</span>
+                    </div>
+                    <div class="item-body">无视划穿恐慌。<b>（强力警告：必须立刻替换为只透纸不伤画芯的陶瓷安全微型刀！）</b></div>
+                </div>
+                <!-- 排序 3：1.6%+ -->
+                <div class="insight-item item-cross">
+                    <div class="item-head">
+                        <span class="item-label">【卷装发货造成的材料结构性失效】<span class="sub-tags">：长期卷边收纳后绝对无法放平</span></span>
+                        <span class="peack-badge badge-cross">1.6%+</span>
+                    </div>
+                    <div class="item-body">厚纸一旦卷筒反卷无法摊平便直接报废。<b>（强力警告：强制包材改用扁平硬纸盒平铺发运）</b>。</div>
+                </div>
+            </div>
+        </article>
+    </main>
+</div>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

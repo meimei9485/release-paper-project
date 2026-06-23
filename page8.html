@@ -1,0 +1,301 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离型纸竞品交叉分析</title>
+    <style>
+        /* 系统与容器重置，保证绝对零溢出 */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { display: none; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            background-color: #0f172a;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; overflow: hidden;
+        }
+        /* 16:9 极严苛空间计算容器 */
+        .ppt-wrapper {
+            width: 98vw;
+            max-width: 1920px;
+            aspect-ratio: 16 / 9;
+            background-color: #f8fafc;
+            border-radius: 12px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+            display: flex; flex-direction: column;
+            container-type: inline-size;
+            padding: 2.5cqw;
+            overflow: hidden;
+        }
+        /* 顶部看板指引 */
+        .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2cqw; flex-shrink: 0;}
+        .title-area h1 { font-size: 2.4cqw; font-weight: 800; color: #0f172a; letter-spacing: -0.05cqw;}
+        .title-area p { font-size: 1.1cqw; color: #64748b; margin-top: 0.6cqw; font-weight: 500;}
+        .threshold-legend { display: flex; gap: 1.2cqw; background: #fff; padding: 0.8cqw 1.5cqw; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .legend-tag { font-size: 1cqw; font-weight: 700; display: flex; align-items: center; gap: 0.4cqw; }
+        /* 阈值色彩基准 */
+        .c-fire { color: #dc2626; } .c-chk { color: #16a34a; } .c-meh { color: #ea580c; } .c-crs { color: #b91c1c; }
+        /* 主网格：五大竞品并排，极小间距 */
+        .grid-container {
+            flex: 1; min-height: 0;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2cqw;
+        }
+        /* 竞品柱列 */
+        .brand-column {
+            background: #ffffff;
+            border: 1px solid #e2e8f0; border-radius: 6px;
+            display: flex; flex-direction: column;
+            /* 取消 overflow:hidden 以允许图片悬浮突破边界 */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.015);
+        }
+        /* 表头 */
+        .col-header {
+            display: flex; align-items: center; gap: 1cqw;
+            padding: 1cqw; background: #f1f5f9; border-bottom: 1px solid #cbd5e1; flex-shrink: 0;
+            border-top-left-radius: 6px; border-top-right-radius: 6px;
+        }
+        /* 图片防挤压及悬浮交互动效 */
+        .b-logo {
+            width: 3cqw; height: 3cqw; object-fit: contain; border-radius: 4px; background: white; padding: 0.2cqw;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1); cursor: zoom-in;
+            position: relative; z-index: 1;
+        }
+        .b-logo:hover {
+            transform: scale(3.5) translate(30%, 30%); /* 悬浮放大并偏移避免遮挡 */
+            z-index: 999; box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            border: 1px solid #cbd5e1;
+        }
+        .b-title { font-size: 1.2cqw; font-weight: 800; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        /* 数据流内容区 */
+        .col-body {
+            flex: 1; min-height: 0;
+            display: flex; flex-direction: column;
+            gap: 0;
+            border-bottom-left-radius: 6px; border-bottom-right-radius: 6px;
+            overflow: hidden; /* 控制文字绝不溢出 */
+        }
+        /* 绝对对齐引擎：强制锁死三大模块占高比例，实现跨列纯平拉齐 */
+        .dim-motiv { flex: 0 0 32%; border-bottom: 2px solid #e2e8f0; overflow: hidden; }
+        .dim-posit { flex: 0 0 46%; border-bottom: 2px solid #fca5a5; overflow: hidden; } /* 红线标记切入负面体验之前 */
+        .dim-negat { flex: 0 0 22%; background: #fffcfc; overflow: hidden; }
+        .dimension-group { display: flex; flex-direction: column; }
+        .group-title {
+            font-size: 0.85cqw; font-weight: 600; color: #94a3b8;
+            padding: 0.5cqw 1cqw 0.2cqw 1cqw; letter-spacing: 0.05cqw; background: #fff;
+        }
+        .dim-negat .group-title { background: #fffcfc; } /* 消除负面体验标题块色差 */
+        /* 占位符设计 (DAC无动机数据时激活) */
+        .empty-holder { font-size: 0.85cqw; color: #cbd5e1; font-style: italic; text-align: center; margin-top: 1.5cqw; }
+        /* 原生数据行（不准换行） */
+        .data-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.45cqw 1cqw; border-bottom: 1px dashed #f8fafc;
+        }
+        .data-row:hover { background: #f1f5f9; }
+        .label {
+            font-size: 0.9cqw; color: #475569; font-weight: 500;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; padding-right: 0.5cqw;
+        }
+        /* 数值高亮引擎视觉 */
+        .metrics { display: flex; gap: 0.3cqw; flex-shrink: 0; }
+        .badge {
+            font-size: 0.8cqw; font-weight: 600; font-family: monospace;
+            padding: 0.2cqw 0.4cqw; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        /* —— 高亮态 (突破红线) —— */
+        .hl-fire { background: #fee2e2; color: #dc2626; outline: 1px solid #fca5a5; font-weight: 800;}
+        .hl-chk { background: #dcfce7; color: #16a34a; outline: 1px solid #86efac; font-weight: 800;}
+        .hl-meh { background: #ffedd5; color: #c2410c; outline: 1px solid #fdba74; font-weight: 800;}
+        .hl-crs { background: #7f1d1d; color: #ffffff; outline: 1px solid #450a0a; font-weight: 800; box-shadow: 0 0 4px rgba(127,29,29,0.5);}
+        /* —— 暗淡态 (未过线记录) —— */
+        .dim { background: transparent; color: #cbd5e1; font-weight: 400; }
+    </style>
+</head>
+<body>
+<div class="ppt-wrapper">
+    <!-- 战略总控头 -->
+    <div class="header-section">
+        <div class="title-area">
+            <h1>离型纸竞品交叉分析</h1>
+            <p>采用阈值渲染过滤系统：保证三大情绪维度板块纯平对齐，直通病灶要害与产品护城河。</p>
+        </div>
+        <div class="threshold-legend">
+            <!-- 图例合二为一：释义+标尺 -->
+            <span class="legend-tag c-fire">强烈惊喜 <span class="badge hl-fire">🔥 ≥4.0%</span></span>
+            <span class="legend-tag c-chk">满意确认 <span class="badge hl-chk">✅ ≥3.0%</span></span>
+            <span class="legend-tag c-meh">有所保留 <span class="badge hl-meh">😐 ≥2.0%</span></span>
+            <span class="legend-tag c-crs">强烈不满 <span class="badge hl-crs">❌ ≥1.5%</span></span>
+        </div>
+    </div>
+    <!-- 数据瀑布流栅格 -->
+    <div class="grid-container">
+        <!-- 1. ARTDOT -->
+        <div class="brand-column">
+            <div class="col-header">
+                <!-- 鼠标悬停图片可无缝放大 -->
+                <img src="https://wp-cdn.4ce.cn/v2/uASGDFQ.png" class="b-logo">
+                <div class="b-title">ARTDOT</div>
+            </div>
+            <div class="col-body">
+                <!-- 模块一：动机锁定 32% 高度 -->
+                <div class="dimension-group dim-motiv">
+                    <div class="group-title"># 购买动机</div>
+                    <div class="data-row"><div class="label">告别静电/褶皱/噪音</div><div class="metrics"><span class="badge hl-fire">🔥6.45%</span><span class="badge dim">✅1.84%</span></div></div>
+                    <div class="data-row"><div class="label">提升顺滑度</div><div class="metrics"><span class="badge hl-fire">🔥4.15%</span><span class="badge dim">✅2.76%</span></div></div>
+                    <div class="data-row"><div class="label">防宠物毛发/儿童误触</div><div class="metrics"><span class="badge dim">🔥2.76%</span><span class="badge dim">✅2.30%</span></div></div>
+                </div>
+                <!-- 模块二：正面锁定 46% 高度 -->
+                <div class="dimension-group dim-posit">
+                    <div class="group-title"># 正面体验</div>
+                    <div class="data-row"><div class="label">可反复多次使用/高耐用</div><div class="metrics"><span class="badge hl-fire">🔥11.06%</span><span class="badge hl-chk">✅8.29%</span></div></div>
+                    <div class="data-row"><div class="label">双面涂层(无需分正反)</div><div class="metrics"><span class="badge hl-fire">🔥9.22%</span><span class="badge hl-chk">✅5.99%</span></div></div>
+                    <div class="data-row"><div class="label">极佳离型力(不粘胶)</div><div class="metrics"><span class="badge hl-fire">🔥8.29%</span><span class="badge hl-chk">✅5.53%</span></div></div>
+                    <div class="data-row"><div class="label">理想厚度与坚韧材质</div><div class="metrics"><span class="badge dim">🔥3.69%</span><span class="badge hl-chk">✅5.53%</span></div></div>
+                    <div class="data-row"><div class="label">配件齐全与高性价比</div><div class="metrics"><span class="badge hl-fire">🔥4.61%</span><span class="badge hl-chk">✅5.07%</span></div></div>
+                    <div class="data-row"><div class="label">半透明视觉辅助定位</div><div class="metrics"><span class="badge dim">🔥2.76%</span><span class="badge hl-chk">✅4.61%</span></div></div>
+                </div>
+                <!-- 模块三：负面锁定 22% 高度 -->
+                <div class="dimension-group dim-negat">
+                    <div class="group-title"># 负面体验</div>
+                    <div class="data-row"><div class="label">和纸胶带完全没有粘度</div><div class="metrics"><span class="badge hl-meh">😐2.30%</span><span class="badge hl-crs">❌4.15%</span></div></div>
+                    <div class="data-row"><div class="label">离型纸太滑无法固定</div><div class="metrics"><span class="badge dim">😐0.92%</span><span class="badge hl-crs">❌2.76%</span></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- 2. Calsoling -->
+        <div class="brand-column">
+            <div class="col-header">
+                <img src="https://wp-cdn.4ce.cn/v2/momr564.png" class="b-logo">
+                <div class="b-title">Calsoling</div>
+            </div>
+            <div class="col-body">
+                <div class="dimension-group dim-motiv">
+                    <div class="group-title"># 购买动机</div>
+                    <div class="data-row"><div class="label">消除噪音与操作阻碍</div><div class="metrics"><span class="badge hl-fire">🔥7.91%</span><span class="badge hl-chk">✅9.35%</span></div></div>
+                    <div class="data-row"><div class="label">缓解宏大项目焦虑感</div><div class="metrics"><span class="badge dim">🔥3.60%</span><span class="badge hl-chk">✅4.32%</span></div></div>
+                    <div class="data-row"><div class="label">精准控制创作进度</div><div class="metrics"><span class="badge dim">🔥2.16%</span><span class="badge hl-chk">✅4.32%</span></div></div>
+                    <div class="data-row"><div class="label">防皮肤接触/防宠物毛发</div><div class="metrics"><span class="badge dim">🔥1.80%</span><span class="badge hl-chk">✅6.48%</span></div></div>
+                </div>
+                <div class="dimension-group dim-posit">
+                    <div class="group-title"># 正面体验</div>
+                    <div class="data-row"><div class="label">符号透视辅助定位</div><div class="metrics"><span class="badge hl-fire">🔥6.47%</span><span class="badge hl-chk">✅8.63%</span></div></div>
+                    <div class="data-row"><div class="label">双面涂层盲贴免错</div><div class="metrics"><span class="badge dim">🔥3.60%</span><span class="badge hl-chk">✅6.83%</span></div></div>
+                    <div class="data-row"><div class="label">大小尺寸双重配置</div><div class="metrics"><span class="badge dim">🔥2.16%</span><span class="badge hl-chk">✅5.76%</span></div></div>
+                    <div class="data-row"><div class="label">预裁切开箱即用性</div><div class="metrics"><span class="badge dim">🔥1.44%</span><span class="badge hl-chk">✅4.68%</span></div></div>
+                </div>
+                <div class="dimension-group dim-negat">
+                    <div class="group-title"># 负面体验</div>
+                    <div class="data-row"><div class="label">质感太薄(像纸巾)</div><div class="metrics"><span class="badge hl-meh">😐3.60%</span><span class="badge hl-crs">❌4.32%</span></div></div>
+                    <div class="data-row"><div class="label">易断裂/无法剥离碎片</div><div class="metrics"><span class="badge dim">😐1.44%</span><span class="badge hl-crs">❌3.96%</span></div></div>
+                    <div class="data-row"><div class="label">毁画布粘性底胶层</div><div class="metrics"><span class="badge dim">😐1.08%</span><span class="badge hl-crs">❌3.24%</span></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- 3. TOP3-DAC -->
+        <div class="brand-column">
+            <div class="col-header">
+                <img src="https://wp-cdn.4ce.cn/v2/PRF0k6J.png" class="b-logo">
+                <div class="b-title">DAC</div>
+            </div>
+            <div class="col-body">
+                <div class="dimension-group dim-motiv">
+                    <div class="group-title"># 购买动机</div>
+                    <!-- 数据空缺，占位保持高度以拉齐横贯线 -->
+                    <div class="empty-holder">当前反馈无显著动机数据</div>
+                </div>
+                <div class="dimension-group dim-posit">
+                    <div class="group-title"># 正面体验</div>
+                    <div class="data-row"><div class="label">无限续航/终身使用感</div><div class="metrics"><span class="badge hl-fire">🔥12.20%</span><span class="badge dim">✅2.44%</span></div></div>
+                    <div class="data-row"><div class="label">功能稳定性(重复后不损)</div><div class="metrics"><span class="badge dim">🔥3.66%</span><span class="badge hl-chk">✅6.10%</span></div></div>
+                    <div class="data-row"><div class="label">精准控制进度(分块解压)</div><div class="metrics"><span class="badge hl-fire">🔥4.88%</span><span class="badge hl-chk">✅6.10%</span></div></div>
+                    <div class="data-row"><div class="label">单手掌握/极其便于管理</div><div class="metrics"><span class="badge dim">🔥3.66%</span><span class="badge hl-chk">✅4.88%</span></div></div>
+                    <div class="data-row"><div class="label">厚实环保及节约属性</div><div class="metrics"><span class="badge dim">🔥2.44%</span><span class="badge hl-chk">✅4.88%</span></div></div>
+                    <div class="data-row"><div class="label">傻瓜式操作盲贴机制</div><div class="metrics"><span class="badge dim">🔥3.66%</span><span class="badge hl-chk">✅3.66%</span></div></div>
+                </div>
+                <div class="dimension-group dim-negat">
+                    <div class="group-title"># 负面体验</div>
+                    <div class="data-row"><div class="label">静态摆放时必然起翘</div><div class="metrics"><span class="badge hl-meh">😐2.44%</span></div></div>
+                    <div class="data-row"><div class="label">卷起收纳时极易受力崩脱</div><div class="metrics"><span class="badge dim">😐1.22%</span><span class="badge dim">❌1.22%</span></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- 4. Etsy -->
+        <div class="brand-column">
+            <div class="col-header">
+                <img src="https://wp-cdn.4ce.cn/v2/K6xVQSg.png" class="b-logo">
+                <div class="b-title">Etsy-BeesCrafty</div>
+            </div>
+            <div class="col-body">
+                <div class="dimension-group dim-motiv">
+                    <div class="group-title"># 购买动机</div>
+                    <div class="data-row"><div class="label">高效物理分区规划流</div><div class="metrics"><span class="badge hl-fire">🔥5.59%</span><span class="badge hl-chk">✅8.39%</span></div></div>
+                    <div class="data-row"><div class="label">满足强迫症式的整齐度</div><div class="metrics"><span class="badge hl-fire">🔥4.20%</span><span class="badge hl-chk">✅4.20%</span></div></div>
+                </div>
+                <div class="dimension-group dim-posit">
+                    <div class="group-title"># 正面体验</div>
+                    <div class="data-row"><div class="label">色彩极度鲜艳与治愈饱满</div><div class="metrics"><span class="badge hl-fire">🔥8.39%</span><span class="badge hl-chk">✅4.20%</span></div></div>
+                    <div class="data-row"><div class="label">闪烁/自带全息动感材质</div><div class="metrics"><span class="badge hl-fire">🔥8.39%</span><span class="badge dim">✅2.80%</span></div></div>
+                    <div class="data-row"><div class="label">强社群及高频复购行为</div><div class="metrics"><span class="badge hl-fire">🔥8.39%</span><span class="badge dim">✅2.10%</span></div></div>
+                    <div class="data-row"><div class="label">可反复定位绝不伤原画</div><div class="metrics"><span class="badge hl-fire">🔥5.59%</span><span class="badge hl-chk">✅6.99%</span></div></div>
+                    <div class="data-row"><div class="label">店主服务暖心定制配合</div><div class="metrics"><span class="badge hl-fire">🔥5.59%</span><span class="badge hl-chk">✅4.20%</span></div></div>
+                </div>
+                <div class="dimension-group dim-negat">
+                    <div class="group-title"># 负面体验</div>
+                    <div class="data-row"><div class="label">作坊材质偏软导致毁坏</div><div class="metrics"><span class="badge dim">😐1.40%</span><span class="badge hl-crs">❌2.80%</span></div></div>
+                    <div class="data-row"><div class="label">物理尺寸落地略显落差</div><div class="metrics"><span class="badge hl-meh">😐2.80%</span></div></div>
+                </div>
+            </div>
+        </div>
+        <!-- 5. Reddit -->
+        <div class="brand-column">
+            <div class="col-header">
+                <img src="https://wp-cdn.4ce.cn/v2/T5y67KP.jpeg" class="b-logo">
+                <div class="b-title">Reddit</div>
+            </div>
+            <div class="col-body">
+                <div class="dimension-group dim-motiv">
+                    <div class="group-title"># 购买动机</div>
+                    <div class="data-row"><div class="label">标准时间管理单元(1小时)</div><div class="metrics"><span class="badge hl-fire">🔥7.69%</span><span class="badge dim">✅2.56%</span></div></div>
+                    <div class="data-row"><div class="label">极其反感原装膜(Crinkle)</div><div class="metrics"><span class="badge dim">🔥3.85%</span><span class="badge dim">✅1.92%</span></div></div>
+                    <div class="data-row"><div class="label">强迫约束定量定块创作</div><div class="metrics"><span class="badge dim">🔥3.21%</span><span class="badge dim">✅1.92%</span></div></div>
+                </div>
+                <div class="dimension-group dim-posit">
+                    <div class="group-title"># 正面体验</div>
+                    <div class="data-row"><div class="label">跨越多项目环保循环操作</div><div class="metrics"><span class="badge hl-fire">🔥5.77%</span><span class="badge dim">✅1.28%</span></div></div>
+                    <div class="data-row"><div class="label">懒人化无脑盲贴防贴反</div><div class="metrics"><span class="badge hl-fire">🔥4.49%</span><span class="badge dim">✅1.28%</span></div></div>
+                    <div class="data-row"><div class="label">避免原胶物理损坏安心感</div><div class="metrics"><span class="badge dim">🔥2.56%</span><span class="badge dim">✅1.28%</span></div></div>
+                </div>
+                <div class="dimension-group dim-negat">
+                    <div class="group-title"># 负面体验</div>
+                    <div class="data-row"><div class="label">金属刀锋容易切穿画布底层</div><div class="metrics"><span class="badge hl-crs">❌1.60%</span></div></div>
+                    <div class="data-row"><div class="label">纸张卷边收纳后绝对放不平</div><div class="metrics"><span class="badge hl-crs">❌1.60%</span></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    

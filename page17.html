@@ -1,0 +1,324 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离型纸产品路线图谱</title>
+    <style>
+        /* ================= 基础重置 ================= */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            background: #eef1f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* ================= 16:9 画布刚性控制 ================= */
+        .ppt-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1600px;
+            aspect-ratio: 16 / 9;
+            max-height: 98vh;
+            min-height: 0;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 24px 64px -16px rgba(0, 30, 50, 0.12);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: clamp(20px, 3.5%, 48px) clamp(24px, 4%, 56px);
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* ================= 头部区 ================= */
+        header {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: clamp(16px, 3vh, 32px);
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: clamp(12px, 2vh, 24px);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+        }
+
+        header h1 {
+            font-size: clamp(26px, 2.8vw, 42px);
+            color: #0f172a;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        header .subtitle {
+            font-size: clamp(12px, 1.1vw, 16px);
+            color: #64748b;
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        /* ================= 内容网格化布局 ================= */
+        .content-grid {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(16px, 2vw, 32px);
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ------ 卡片基础构造 ------ */
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: clamp(20px, 2.5vw, 32px);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 后景装饰水印字 */
+        .card::after {
+            content: attr(data-watermark);
+            position: absolute;
+            bottom: -5%;
+            right: 2%;
+            font-size: clamp(80px, 8vw, 140px);
+            font-weight: 900;
+            color: #0f172a;
+            opacity: 0.03;
+            pointer-events: none;
+            letter-spacing: -2px;
+            z-index: 0;
+        }
+
+        /* ------ 核心修改：晨曦浅黄共享底纹 (RPA7 & 离型膜 共用) ------ */
+        .theme-yellow {
+            background: linear-gradient(180deg, #fffef8 0%, #fcf7e3 100%);
+            border: 1px solid #f4ebd0;
+        }
+        
+        .theme-yellow::after { color: #d1b466; opacity: 0.05; }
+        .theme-yellow .card-title { color: #3a3219; }
+        .theme-yellow .price-tag { color: #9c7b24; }
+        
+        .theme-yellow .feature-item {
+            background: rgba(255, 255, 255, 0.75);
+            border-color: rgba(244, 235, 208, 0.8);
+            border-left: 4px solid #e5cc8f;
+        }
+
+        /* ------ 高端款专属标识 (同为浅黄底色，通过压金边划清等级界限) ------ */
+        .theme-yellow.premium-accent::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d4af37, #f3e5c9);
+            z-index: 2;
+        }
+        .theme-yellow.premium-accent .feature-item {
+            border-left: 4px solid #d4af37; /* 加强金线，彰显Pro感 */
+        }
+        .theme-yellow.premium-accent::after { color: #d4af37; opacity: 0.07; }
+
+        /* ------ 顶部信息区 ------ */
+        .card-header {
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .card-title-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-size: clamp(20px, 2vw, 28px);
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .price-tag {
+            font-size: clamp(16px, 1.8vw, 24px);
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        /* 定位与标签 */
+        .position-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: clamp(12px, 1vw, 14px);
+            font-weight: 600;
+            margin-bottom: clamp(20px, 2.5vw, 32px);
+        }
+
+        .badge-low { background: #e2e8f0; color: #475569; }
+        .badge-high { background: #fef0c7; color: #906603; }
+
+        /* 特别处理RPA7由于黄色底纹所需的和谐版低端标签 */
+        .theme-yellow .badge-low.harmonized {
+            background: #f0ead2; 
+            color: #635a3f;
+        }
+
+        /* ------ 特性列表 (紧凑，非横向对比) ------ */
+        .feature-list {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px; 
+            list-style: none;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .feature-item {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 8px;
+            padding: clamp(12px, 1.5vh, 18px) 16px;
+            font-size: clamp(14px, 1.1vw, 17px);
+            color: #334155;
+            font-weight: 500;
+            border-left: 4px solid #cbd5e1;
+            line-height: 1.5;
+            backdrop-filter: blur(4px);
+        }
+
+        /* 滚动条 */
+        .feature-list::-webkit-scrollbar { width: 4px; }
+        .feature-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        /* ================= 进场动画 ================= */
+        @keyframes slideIn {
+            0% { opacity: 0; transform: scale(0.97) translateY(15px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .card { animation: cardFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes cardFadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ppt-wrapper">
+        <header>
+            <h1>离型纸产品路线图谱</h1>
+            <div class="subtitle">Release Paper Product Roadmap</div>
+        </header>
+
+        <div class="content-grid">
+            
+            <!-- 卡片 1 (商务冷灰基调 - 不变) -->
+            <div class="card" data-watermark="RPA6">
+                <div class="card-header">
+                    <div class="card-title-wrap">
+                        <div class="card-title">AD-OT-RPA6</div>
+                        <div class="price-tag">9.99$</div>
+                    </div>
+                    <div class="position-badge badge-low">定位：低端</div>
+                </div>
+                <ul class="feature-list">
+                    <li class="feature-item">双面硅油</li>
+                    <li class="feature-item">大数量</li>
+                    <li class="feature-item">一站式需求解决方案，配备“和纸胶带+刻刀+矫正板”</li>
+                </ul>
+            </div>
+
+            <!-- 卡片 2 (应用：晨曦浅黄底纹) -->
+            <div class="card theme-yellow" data-watermark="RPA7">
+                <div class="card-header">
+                    <div class="card-title-wrap">
+                        <div class="card-title">AD-OT-RPA7</div>
+                        <div class="price-tag">9.99$</div>
+                    </div>
+                    <!-- harmonized 用于将灰蓝底签稍作调整以融于黄底环境 -->
+                    <div class="position-badge badge-low harmonized">定位：尺寸迭代款，低端</div>
+                </div>
+                <ul class="feature-list">
+                    <li class="feature-item">RPA6尺寸迭代变小</li>
+                    <li class="feature-item">更大数量</li>
+                </ul>
+            </div>
+
+            <!-- 卡片 3 (应用：相同的晨曦浅黄底纹 + 高端金边点缀线) -->
+            <div class="card theme-yellow premium-accent" data-watermark="PRO">
+                <div class="card-header">
+                    <div class="card-title-wrap">
+                        <div class="card-title">离型膜</div>
+                        <div class="price-tag">10.99~12.99$</div>
+                    </div>
+                    <div class="position-badge badge-high">定位：高端</div>
+                </div>
+                <!-- 100% 原始文本，无任何添加或删减 -->
+                <ul class="feature-list">
+                    <li class="feature-item">符号清晰可视，无遮挡</li>
+                    <li class="feature-item">提拉耳挂设计</li>
+                    <li class="feature-item">材质厚实</li>
+                    <li class="feature-item">边框美学设计</li>
+                    <li class="feature-item">配备收纳盒</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
