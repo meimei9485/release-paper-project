@@ -1,0 +1,421 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售趋势与规模洞察报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+    <style>
+        /* ========================================================
+           1. 空间与尺寸刚性控制 (核心约束) 
+           ======================================================== */
+        :root {
+            --bg-body: #E8EAED;
+            --bg-ppt: #FFFFFF;
+            --color-text-main: #1C1E21;
+            --color-text-sub: #5F6368;
+            --color-border: #E0E4E8;
+            --color-highlight: #F5BA18;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            font-family: var(--font-family);
+        }
+
+        /* 16:9 展示视口 */
+        .ppt-viewport {
+            width: 100%;
+            height: 100%;
+            max-width: calc(98vh * 16 / 9);
+            max-height: calc(100vw * 9 / 16);
+            aspect-ratio: 16 / 9;
+            background-color: var(--bg-ppt);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            padding: 2.5%;
+            overflow: hidden;
+        }
+
+        /* ========================================================
+           2. 排版结构 
+           ======================================================== */
+        .ppt-header {
+            flex-shrink: 0;
+            height: 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--color-border);
+            margin-bottom: 1.5%;
+        }
+
+        .ppt-header h1 {
+            font-size: clamp(20px, 2.5vw, 32px);
+            color: var(--color-text-main);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .ppt-header .logo-area {
+            font-size: clamp(12px, 1.2vw, 16px);
+            color: var(--color-text-sub);
+            font-weight: 500;
+        }
+
+        .ppt-body {
+            flex-grow: 1;
+            min-height: 0;
+            display: flex;
+            gap: 1.5%;
+        }
+
+        .chart-matrix {
+            flex: 7;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 2%;
+            min-height: 0;
+            min-width: 0;
+        }
+
+        .insight-panel {
+            flex: 3;
+            background: #F8F9FA;
+            border-radius: 8px;
+            border: 1px solid var(--color-border);
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* ========================================================
+           3. 图表区规范
+           ======================================================== */
+        .card {
+            background-color: var(--bg-ppt);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            min-width: 0;
+            padding: 3%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .card-header {
+            flex-shrink: 0;
+            font-size: clamp(14px, 1.2vw, 18px);
+            color: var(--color-text-main);
+            font-weight: 600;
+            margin-bottom: 1%;
+            display: flex;
+            align-items: center;
+        }
+        .card-header::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 14px;
+            background-color: var(--color-highlight);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .chart-container {
+            flex-grow: 1;
+            min-height: 0;
+            width: 100%;
+        }
+
+        /* ========================================================
+           4. 右侧结论排布：柔和等距分散 (重点修改区域)
+           ======================================================== */
+        .insight-header {
+            padding: 5% 6% 3% 6%;
+            background: linear-gradient(135deg, #1890FF 0%, #1D39C4 100%);
+            color: white;
+            font-size: clamp(16px, 1.5vw, 22px);
+            font-weight: 600;
+            letter-spacing: 1px;
+            flex-shrink: 0;
+        }
+
+        .insight-content {
+            padding: 4% 6%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly; 
+            gap: 10px;
+        }
+
+        .insight-item {
+            font-size: clamp(11.5px, 1.1vw, 14.5px);
+            color: var(--color-text-sub);
+            line-height: 1.6;
+            background: #FFFFFF;
+            padding: 4.5% 6%;
+            border-radius: 6px;
+            border-left: 3px solid #69B1FF;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            text-align: justify;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .insight-item p { margin-bottom: 6px; }
+        .insight-item p:last-child { margin-bottom: 0; }
+
+        .insight-item strong {
+            color: var(--color-text-main);
+            font-weight: 700;
+        }
+
+        .title-strong {
+            color: var(--color-text-main);
+            font-weight: 700;
+            margin-right: 4px;
+            border-bottom: 2px solid rgba(24, 144, 255, 0.2);
+        }
+
+        .num-highlight {
+            color: #1890FF;
+            font-weight: 700;
+            font-family: inherit;
+        }
+
+        .insight-item.highlight {
+            border-left-color: var(--color-highlight);
+            background: #FFFBE6;
+        }
+        .insight-item.highlight strong,
+        .insight-item.highlight .title-strong {
+            color: #D48806;
+            border-bottom-color: rgba(212, 136, 6, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ppt-viewport">
+        <!-- 页面顶栏 -->
+        <header class="ppt-header">
+            <!-- 唯一修改点：标题更新 -->
+            <h1>离型纸销售趋势分析</h1>
+            <div class="logo-area">Confidential & Proprietary · 2026 Q2</div>
+        </header>
+
+        <!-- 页面主体容器 -->
+        <main class="ppt-body">
+            
+            <!-- 左侧：图表阵列 -->
+            <div class="chart-matrix">
+                <div class="card">
+                    <div class="card-header">钻石画近2年销售趋势</div>
+                    <div id="chart1" class="chart-container"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">离型纸近2年销售趋势</div>
+                    <div id="chart2" class="chart-container"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">钻石画套件近2年销售趋势</div>
+                    <div id="chart3" class="chart-container"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">品类近2年销量对照结构分析 (季节性嗅探)</div>
+                    <div id="chart4" class="chart-container"></div>
+                </div>
+            </div>
+
+            <!-- 右侧：结论洞察区 平铺展示 -->
+            <aside class="insight-panel">
+                <div class="insight-header">
+                    Business Insights
+                </div>
+                <div class="insight-content">
+                    
+                    <div class="insight-item">
+                        <p><span class="title-strong">大盘强势拉升：</span>钻石画 <strong>26年1~4月</strong> 规模大幅增长，销量同比提升 <span class="num-highlight">+73.35%</span>，销售额提升 <span class="num-highlight">+57.45%</span>。</p>
+                        <p><span class="title-strong">离型纸伴生增长：</span>受大盘影响，离型纸同期规模大幅增长，且 <strong>增长速度超过大盘</strong>。<strong>26年1~4月</strong> 销量同比 <span class="num-highlight">+73.08%</span>，销售额猛涨 <span class="num-highlight">+82.13%</span>。</p>
+                        <p><span class="title-strong">需求持续性预期：</span>离型纸规模增长受用户对类目 <strong>整体需求量上升</strong> 驱动。推测 <strong>26年后续月份</strong> 将仍保持 <strong>同等级别</strong> 的增长比例。</p>
+                    </div>
+
+                    <div class="insight-item highlight">
+                        <p><span class="title-strong">核心发现：时间差错位效应 —— </span>数据严格定性存在 <strong>“12月买画，1月买纸”</strong> 的顺延相关关系。这直接解释了为何离型纸的销量会在 <strong>1月份实现突发暴增</strong>，而不是同步在 12月旺季。这说明离型纸销量本质是由前置的 <strong>“钻石画套件购买后的存量开箱”</strong> 直接驱动。</p>
+                    </div>
+
+                    <div class="insight-item">
+                        <p><span class="title-strong">季节特征定性结论：</span>这进一步印证了离型纸与大盘的变动附庸关系。离型纸本身的销售趋势 <strong>无明显的独立季节属性</strong>，其被动销量高峰期（即季节表现）<strong>永远恒定是 1 月</strong>。</p>
+                    </div>
+
+                </div>
+            </aside>
+
+        </main>
+    </div>
+
+    <!-- 图表核心驱动脚本 -->
+    <script>
+        const chartInstances = [];
+
+        function buildTrendOption(rawData, colorMain, colorBar) {
+            const months = [], vols = [], revs = [], volYoY = [], revYoY = [];
+            rawData.forEach(curr => {
+                months.push(curr.m.substring(2,4) + '/' + curr.m.substring(4,6)); 
+                vols.push(curr.v);
+                revs.push(curr.r);
+                let year = parseInt(curr.m.substring(0, 4));
+                let lastYearMonth = (year - 1).toString() + curr.m.substring(4, 6);
+                let lastData = rawData.find(d => d.m === lastYearMonth);
+                if (lastData) {
+                    volYoY.push(((curr.v - lastData.v) / lastData.v * 100).toFixed(2));
+                    revYoY.push(((curr.r - lastData.r) / lastData.r * 100).toFixed(2));
+                } else {
+                    volYoY.push('-');
+                    revYoY.push('-');
+                }
+            });
+
+            return {
+                tooltip: { show: false },
+                legend: { data: ['月销售额($)', '月销量', '销售额同比', '销量同比'], top: '0%', itemGap: 10, itemWidth: 12, itemHeight: 8, textStyle: { fontSize: 10, color: '#555' } },
+                grid: { left: '3%', right: '3%', top: '22%', bottom: '2%', containLabel: true },
+                xAxis: { 
+                    type: 'category', 
+                    data: months, 
+                    axisLabel: { fontSize: 9, color: '#666', rotate: 30, interval: 'auto' }, 
+                    axisTick:{show:false} 
+                },
+                yAxis: [
+                    { type: 'value', position: 'left', splitNumber: 3, axisLine: { show: true, lineStyle: { color: colorMain, width: 2 } }, axisLabel: { fontSize: 10, formatter: val => (val/1000)+'k' }, splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } } },
+                    { type: 'value', position: 'right', splitNumber: 3, axisLine: { show: true, lineStyle: { color: colorBar, width: 2 } }, axisLabel: { fontSize: 10, formatter: val => (val/1000)+'k' }, splitLine: { show: false } },
+                    { type: 'value', position: 'right', offset: 40, splitNumber: 3, axisLine: { show: true, lineStyle: { color: '#bbb', width: 1 } }, axisLabel: { formatter: '{value}%', fontSize: 10, color:'#999' }, splitLine: { show: false } }
+                ],
+                series: [
+                    { name: '月销售额($)', type: 'line', yAxisIndex: 0, smooth: true, symbolSize: 5, lineStyle: { width: 3 }, itemStyle: { color: colorMain }, emphasis: { label: { show: true, position: 'top', fontSize: 11, fontWeight: 'bold', color: colorMain, backgroundColor: 'rgba(255,255,255,0.9)', padding: [3,5], borderRadius: 3, formatter: p => '$' + Number(Math.round(p.value)).toLocaleString() } }, data: revs },
+                    { name: '月销量', type: 'bar', yAxisIndex: 1, barMaxWidth: 15, itemStyle: { color: colorBar, borderRadius: [2,2,0,0] }, emphasis: { label: { show: true, position: 'top', fontSize: 11, fontWeight: 'bold', color: colorBar, backgroundColor: 'rgba(255,255,255,0.9)', padding: [3,5], borderRadius: 3, formatter: p => Number(p.value).toLocaleString() } }, data: vols },
+                    { name: '销售额同比', type: 'line', yAxisIndex: 2, smooth: true, symbolSize: 5, lineStyle: { width: 2 }, itemStyle: { color: '#FF69B4' }, emphasis: { label: { show: true, position: 'top', fontSize: 11, fontWeight: 'bold', color: '#FF69B4', backgroundColor: 'rgba(255,255,255,0.9)', padding: [3,5], borderRadius: 3, formatter: p => p.value !== '-' ? p.value + '%' : '' } }, data: revYoY },
+                    { name: '销量同比', type: 'line', yAxisIndex: 2, smooth: true, symbolSize: 5, lineStyle: { width: 2 }, itemStyle: { color: '#32CD32' }, emphasis: { label: { show: true, position: 'top', fontSize: 11, fontWeight: 'bold', color: '#32CD32', backgroundColor: 'rgba(255,255,255,0.9)', padding: [3,5], borderRadius: 3, formatter: p => p.value !== '-' ? p.value + '%' : '' } }, data: volYoY }
+                ]
+            };
+        }
+
+        {
+            const data = [ {m:'202404',v:96184,r:1155983.02},{m:'202405',v:94863,r:1157848.96},{m:'202406',v:99534,r:1190884.16},{m:'202407',v:117044,r:1438541.85},{m:'202408',v:98798,r:1179262.07},{m:'202409',v:103166,r:1222707.79},{m:'202410',v:130684,r:1621904.85},{m:'202411',v:175331,r:2275164.61},{m:'202412',v:285024,r:3963845.72},{m:'202501',v:170473,r:2150966.49},{m:'202502',v:167038,r:2030732.24},{m:'202503',v:162102,r:1897739.23},{m:'202504',v:149617,r:1670659.14},{m:'202505',v:142119,r:1553715.89},{m:'202506',v:133554,r:1460022.56},{m:'202507',v:156763,r:1743959.45},{m:'202508',v:145655,r:1558641.01},{m:'202509',v:150991,r:1614363.49},{m:'202510',v:184558,r:2016986.54},{m:'202511',v:266839,r:2919976.24},{m:'202512',v:368352,r:4687210.15},{m:'202601',v:306456,r:3510835.85},{m:'202602',v:286115,r:3124186.56},{m:'202603',v:271971,r:2882153.79},{m:'202604',v:260876,r:2685054.31} ];
+            let c1 = echarts.init(document.getElementById('chart1'));
+            c1.setOption(buildTrendOption(data, '#1D39C4', '#69B1FF'));
+            chartInstances.push(c1);
+        }
+
+        {
+            const data = [ {m:'202404',v:5018,r:43892.52},{m:'202405',v:4257,r:36416.69},{m:'202406',v:3969,r:33090.63},{m:'202407',v:5347,r:47733.20},{m:'202408',v:4449,r:39306.03},{m:'202409',v:4867,r:42769.27},{m:'202410',v:5317,r:47055.75},{m:'202411',v:5168,r:45974.78},{m:'202412',v:6329,r:53321.73},{m:'202501',v:8405,r:72932.06},{m:'202502',v:7933,r:70786.54},{m:'202503',v:7192,r:63946.55},{m:'202504',v:5806,r:48601.82},{m:'202505',v:4753,r:37803.83},{m:'202506',v:5209,r:41369.53},{m:'202507',v:5046,r:42148.43},{m:'202508',v:5147,r:42997.14},{m:'202509',v:5603,r:47031.72},{m:'202510',v:6695,r:57523.98},{m:'202511',v:7517,r:62745.55},{m:'202512',v:9316,r:79462.07},{m:'202601',v:15954,r:146617.23},{m:'202602',v:14170,r:130095.13},{m:'202603',v:11645,r:107217.48},{m:'202604',v:9007,r:82817.00} ];
+            let c2 = echarts.init(document.getElementById('chart2'));
+            c2.setOption(buildTrendOption(data, '#2BD9A5', '#7DE4C8'));
+            chartInstances.push(c2);
+        }
+
+        {
+            const data = [ {m:'202404',v:48048,r:640005.55},{m:'202405',v:53645,r:699504.40},{m:'202406',v:61444,r:846671.94},{m:'202407',v:69633,r:939930.09},{m:'202408',v:56516,r:768222.73},{m:'202409',v:59589,r:778255.38},{m:'202410',v:79625,r:1058632.32},{m:'202411',v:127826,r:1754603.30},{m:'202412',v:271718,r:4092460.89},{m:'202501',v:95635,r:1192588.43},{m:'202502',v:96604,r:1190588.54},{m:'202503',v:104540,r:1179206.55},{m:'202504',v:108704,r:1153878.92},{m:'202505',v:101641,r:1034943.34},{m:'202506',v:93647,r:981903.95},{m:'202507',v:104305,r:1061712.43},{m:'202508',v:91789,r:892370.73},{m:'202509',v:93513,r:889267.04},{m:'202510',v:116897,r:1121804.07},{m:'202511',v:189334,r:1868469.75},{m:'202512',v:284172,r:3633391.42},{m:'202601',v:162196,r:1649178.29},{m:'202602',v:170151,r:1626079.36},{m:'202603',v:174163,r:1667819.13},{m:'202604',v:175454,r:1603657.46} ];
+            let c3 = echarts.init(document.getElementById('chart3'));
+            c3.setOption(buildTrendOption(data, '#531DAB', '#B37FEB'));
+            chartInstances.push(c3);
+        }
+
+        {
+            const kit = [{m:'202404',v:48048},{m:'202405',v:53645},{m:'202406',v:61444},{m:'202407',v:69633},{m:'202408',v:56516},{m:'202409',v:59589},{m:'202410',v:79625},{m:'202411',v:127826},{m:'202412',v:271718},{m:'202501',v:95635},{m:'202502',v:96604},{m:'202503',v:104540},{m:'202504',v:108704},{m:'202505',v:101641},{m:'202506',v:93647},{m:'202507',v:104305},{m:'202508',v:91789},{m:'202509',v:93513},{m:'202510',v:116897},{m:'202511',v:189334},{m:'202512',v:284172},{m:'202601',v:162196},{m:'202602',v:170151},{m:'202603',v:174163},{m:'202604',v:175454}];
+            const paper = [{m:'202404',v:5018},{m:'202405',v:4257},{m:'202406',v:3969},{m:'202407',v:5347},{m:'202408',v:4449},{m:'202409',v:4867},{m:'202410',v:5317},{m:'202411',v:5168},{m:'202412',v:6329},{m:'202501',v:8405},{m:'202502',v:7933},{m:'202503',v:7192},{m:'202504',v:5806},{m:'202505',v:4753},{m:'202506',v:5209},{m:'202507',v:5046},{m:'202508',v:5147},{m:'202509',v:5603},{m:'202510',v:6695},{m:'202511',v:7517},{m:'202512',v:9316},{m:'202601',v:15954},{m:'202602',v:14170},{m:'202603',v:11645},{m:'202604',v:9007}];
+            
+            const months = [], kitData = [], paperData = [];
+            const C_PAPER = '#2BD9A5', C_KIT = '#69B1FF', C_HIGH = '#F5BA18';
+
+            kit.forEach(k => {
+                let m = k.m.toString();
+                let fm = m.substring(2,4) + '/' + m.substring(4,6);
+                months.push(fm);
+                let isDec = fm.endsWith('/12');
+                kitData.push({ value: k.v, itemStyle: isDec ? { color: C_HIGH } : undefined });
+                
+                let pVol = paper.find(p => p.m === m)?.v || 0;
+                let isJan = fm.endsWith('/01');
+                paperData.push({ value: pVol, itemStyle: isJan ? { color: C_HIGH } : undefined });
+            });
+
+            let c4 = echarts.init(document.getElementById('chart4'));
+            c4.setOption({
+                tooltip: { show: false },
+                legend: { data: ['离型纸(上)', '套件(下)'], top: '0%', itemGap: 15, itemWidth: 12, itemHeight: 8, textStyle: {fontSize: 10} },
+                grid: [
+                    { left: '10%', right: '5%', top: '12%', height: '40%' },
+                    { left: '10%', right: '5%', top: '52%', height: '40%' }
+                ],
+                xAxis: [
+                    { gridIndex: 0, type: 'category', data: months, axisLabel: { show: false }, axisTick: { show: false }, axisLine: { lineStyle: { color: '#ddd' } } },
+                    { gridIndex: 1, type: 'category', data: months, position: 'bottom', axisLabel: { fontSize: 9, color: '#666', rotate: 30, interval: 'auto' }, axisLine: { lineStyle: { color: '#ccc' } } }
+                ],
+                yAxis: [
+                    { gridIndex: 0, type: 'value', axisLine: { show: true, lineStyle: { color: C_PAPER } }, axisLabel: { fontSize: 9, formatter: v=>(v/1000)+'k' }, splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } } },
+                    { gridIndex: 1, type: 'value', inverse: true, axisLine: { show: true, lineStyle: { color: C_KIT } }, axisLabel: { fontSize: 9, formatter: v=>(v/1000)+'k' }, splitLine: { lineStyle: { type: 'dashed', color: '#f0f0f0' } } }
+                ],
+                series: [
+                    {
+                        name: '离型纸(上)', type: 'bar', xAxisIndex: 0, yAxisIndex: 0, barMaxWidth: 15, itemStyle: { color: C_PAPER, borderRadius: [2,2,0,0] }, data: paperData,
+                        emphasis: { label: { show: true, position: 'top', fontSize: 11, fontWeight: 'bold', color: '#333', backgroundColor: 'rgba(255,255,255,0.95)', borderColor: 'inherit', borderWidth: 1, borderRadius: 2, padding: [3,5], formatter: p => '纸: ' + Number(p.value).toLocaleString() } }
+                    },
+                    {
+                        name: '套件(下)', type: 'bar', xAxisIndex: 1, yAxisIndex: 1, barMaxWidth: 15, itemStyle: { color: C_KIT, borderRadius: [0,0,2,2] }, data: kitData,
+                        emphasis: { label: { show: true, position: 'bottom', fontSize: 11, fontWeight: 'bold', color: '#333', backgroundColor: 'rgba(255,255,255,0.95)', borderColor: 'inherit', borderWidth: 1, borderRadius: 2, padding: [3,5], formatter: p => '套件: ' + Number(p.value).toLocaleString() } }
+                    }
+                ]
+            });
+            chartInstances.push(c4);
+        }
+
+        window.addEventListener('resize', () => {
+            chartInstances.forEach(chart => chart.resize());
+        });
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
