@@ -31,15 +31,16 @@
             --text-sub: #334155; /* 次要文字 */
             --card-bg: #ffffff; /* 卡片白 */
             --accent: #2563eb; /* 强调蓝 */
-            --grid-gap: 1.2vw;
+            --grid-gap: 1.2vw; /* ✅ 恢复原始宽敞网格间距 */
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        /* 视窗全屏居中约束 */
+        
         body {
             background-color: var(--bg-body);
             display: flex; justify-content: center; align-items: center;
             height: 100vh; width: 100vw; overflow: hidden; padding: 2vh 2vw;
         }
+        
         /* 16:9 画布容器：绝对限制与防溢出 */
         .ppt-wrapper {
             position: relative; background: var(--ppt-bg);
@@ -47,11 +48,12 @@
             max-width: calc(96vh * 16 / 9); max-height: 96vh;
             display: flex; flex-direction: column; overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.05);
-            border-radius: 12px; padding: 2.5vw 3.5vw;
+            border-radius: 12px; padding: 2.5vw 3.5vw; /* ✅ 恢复原始大留白 */
         }
+        
         /* ================= Header 布局 ================= */
         .header {
-            flex: 0 0 auto; margin-bottom: 1.5vw;
+            flex: 0 0 auto; margin-bottom: 1.5vw; /* ✅ 恢复大标题间距 */
             display: flex; justify-content: space-between; align-items: center;
             animation: fadeInDown 0.8s ease backwards;
         }
@@ -64,7 +66,8 @@
             font-size: clamp(0.75rem, 0.9vw, 1.3rem); font-weight: 600; color: var(--primary);
             background: rgba(37, 99, 235, 0.1); padding: 0.5vw 1vw; border-radius: 4px; text-transform: uppercase;
         }
-        /* ================= 主体网格布局（顶级 5块 填满法） ================= */
+        
+        /* ================= 主体网格布局 ================= */
         .grid-container {
             flex: 1; min-height: 0; display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -73,9 +76,11 @@
         }
         .card-nth-1, .card-nth-2, .card-nth-3 { grid-column: span 2; }
         .card-nth-4, .card-nth-5 { grid-column: span 3; }
+        
         /* ================= 卡片容器全局统一样式 ================= */
         .card {
-            background: var(--card-bg); border-radius: 8px; padding: 1.2vw;
+            background: var(--card-bg); border-radius: 8px; 
+            padding: 1.2vw; /* ✅ 恢复卡片内原始的宽敞边距 */
             display: flex; flex-direction: column; position: relative; overflow: hidden;
             box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.04);
             animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) backwards;
@@ -101,36 +106,33 @@
             font-size: clamp(0.6rem, 0.75vw, 1rem); font-weight: 700; color: var(--primary); margin-bottom: 0.6vw;
             background: var(--primary-light); padding: 0.4vw 0.6vw; border-radius: 4px; line-height: 1.3; flex-shrink: 0;
         }
-        /* ================= 重构为全局图左文右自适应布局 ================= */
-        /* --- 默认横排布局 (图左，文右) --- */
+        
+        /* ================= 针对完整无遮挡展示的核心媒体块重构 ================= */
         .content-flow {
             flex: 1; min-height: 0; display: flex; flex-direction: row; gap: 0.8vw; align-items: stretch;
         }
-        /* --- 卡片1、2、3 (窄体专用左侧容器：占比38%) --- */
+        
         .media-box-left {
-            width: 38%; 
-            height: 100%; border-radius: 4px; overflow: hidden; flex-shrink: 0;
-            background: var(--ppt-bg); /* 与卡片相近的柔和背景消灭黑边 */
-            border: 1px solid rgba(0,0,0,0.03);
-            display: flex; justify-content: center; align-items: center;
-        }
-        /* --- 卡片4、5极宽体额外扩展 --- */
-        .card-wide .content-flow { gap: 1vw; }
-        .media-box-side {
-            width: 42%; /* 更大画幅区的42%占比 */
+            width: 38%; /* ✅ 恢复原始媒体宽度 */
             height: 100%; border-radius: 4px; overflow: hidden; flex-shrink: 0;
             background: var(--ppt-bg); border: 1px solid rgba(0,0,0,0.03);
             display: flex; justify-content: center; align-items: center;
         }
         
-        /* 核心代码：使用 contain 保持媒体完整，所有左侧自适应方框统一处理 */
+        .card-wide .content-flow { gap: 1vw; }
+        .media-box-side {
+            width: 42%; 
+            height: 100%; border-radius: 4px; overflow: hidden; flex-shrink: 0;
+            background: var(--ppt-bg); border: 1px solid rgba(0,0,0,0.03);
+            display: flex; justify-content: center; align-items: center;
+        }
+        
         .media-box-left img, .media-box-left video,
         .media-box-side img, .media-box-side video,
         .media-half img {
             width: 100%; height: 100%; object-fit: contain; border: none;
         }
         
-        /* --- 卡片5 专用双子图容器布局 --- */
         .double-image-container {
             display: flex; flex-direction: column; gap: 0.5vw;
             background: transparent; border: none; overflow: visible;
@@ -143,7 +145,8 @@
         .text-wrap {
             flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.5vw; justify-content: flex-start;
         }
-        /* ================= 文字正文格式严密压缩 ================= */
+        
+        /* ================= 全局默认文本样式（应用于卡4、5） ================= */
         .card-body {
             flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0.5vw; overflow: visible; justify-content: flex-start;
         }
@@ -156,9 +159,17 @@
         }
         .insight-tag { color: var(--accent); }
         .bold-text { font-weight: 700; color: var(--text-main); }
-        /* 🔥 交互专用类层级区 🔥 */
         
-        /* 卡片3 的亮黄色圆圈绝对跟随包裹体 */
+        /* 🚨🚨🚨定向解决遮挡魔法：仅针对前三张卡片极其精细的挤压，其他卡片丝毫不受影响 🚨🚨🚨 */
+        .compact-target .card-body { gap: 0.25vw; }
+        .compact-target .item-row { gap: 0.2vw; }
+        .compact-target .item-txt {
+            font-size: clamp(0.46rem, 0.65vw, 0.88rem); /* 缩小一点点上限和下限防换行 */
+            line-height: 1.34;
+            letter-spacing: -0.02em; /* 缩小一点点字间距防本地排版挤下去 */
+        }
+
+        /* 🔥 交互专用类层级区 🔥 */
         .highlight-ring {
             position: absolute;
             top: 57%;       
@@ -176,8 +187,6 @@
         .highlight-ring.active {
             opacity: 1;
         }
-        
-        /* 卡片4、5 高亮交互效果 */
         .red-underlined span, .red-underlined p {
             text-decoration: underline solid #ef4444 2px !important;
             text-underline-offset: 3px;
@@ -188,7 +197,8 @@
             text-underline-offset: 3px;
             transition: all 0.3s ease;
         }
-        /* 动画延展序列 */
+        
+        /* 动画 */
         .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; } .delay-3 { animation-delay: 0.3s; }
         .delay-4 { animation-delay: 0.4s; } .delay-5 { animation-delay: 0.5s; }
         @keyframes fadeInUp { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
@@ -202,12 +212,12 @@
             <div class="meta-tag">UX Insight & SOP</div>
         </header>
         <main class="grid-container">
-            <!-- 卡片 1 (完美左右双排布局) -->
-            <div class="card card-nth-1 delay-1">
+            <!-- 卡片 1 (追加 compact-target 类，定向压缩) -->
+            <div class="card card-nth-1 delay-1 compact-target">
                 <div class="card-header">
                     <span class="step-label">01</span><h3 class="card-title">净场与排雷<span class="card-title-sub">Prep & Purge</span></h3>
                 </div>
-                <div class="card-subtitle">原厂保护膜是所有痛点的万恶之源，彻底告别它是建立完美体验的第一步。</div>
+                <div class="card-subtitle">原厂保护膜是所有痛点的万恶之源，彻底告别它是建立完美体验的基石。</div>
                 <div class="content-flow">
                     <div class="media-box-left">
                         <video src="https://packaged-media.redd.it/eiq391hwjs6h1/pb/m2-res_640p.mp4?m=DASHPlaylist.mpd&var=sgpssan&v=1&e=1781258400&s=294c1d61ad18fa1ed1758d5dc6084c230facead5" autoplay loop muted playsinline></video>
@@ -215,25 +225,26 @@
                     <div class="card-body text-wrap">
                         <div class="item-row">
                             <span class="item-label">物理操作：</span>
-                            <p class="item-txt">收到钻石画后，<span class="bold-text">第一件事</span>就是将原厂自带的透明/不透明塑料薄膜彻底撕掉抛弃。</p>
+                            <p class="item-txt">收到画后，<span class="bold-text">第一件事</span>是将自带的透明/不透明保护膜彻底撕掉抛弃。</p>
                         </div>
                         <div class="item-row">
                             <span class="item-label">进阶动作：</span>
-                            <p class="item-txt">在正式铺设前，使用产品附带的“测试样张”在画布边缘进行粘性测试，确保不伤原画底胶。（来源：BeesCraftyCorners）</p>
+                            <p class="item-txt">正式铺设前，使用附带的“测试样张”在边缘做粘性测试，确不伤原画底胶。</p>
                         </div>
                         <div class="item-row">
                             <span class="item-label insight-tag">💡洞察：</span>
-                            <p class="item-txt">彻底消除原厂膜带来的三大负面体验：<span class="bold-text">噪音</span>（撕拉声），<span class="bold-text">静电</span>（吸附灰尘），<span class="bold-text">折痕</span>（导致起泡）。</p>
+                            <p class="item-txt">此举彻底消除三大负面体验：<span class="bold-text">噪音</span>（撕拉刺耳），<span class="bold-text">静电</span>（吸附灰尘），<span class="bold-text">折痕</span>（导致起泡）。</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- 卡片 2 (完美左右双排布局) -->
-            <div class="card card-nth-2 delay-2">
+            
+            <!-- 卡片 2 (追加 compact-target 类，定向压缩) -->
+            <div class="card card-nth-2 delay-2 compact-target">
                 <div class="card-header">
                     <span class="step-label">02</span><h3 class="card-title">网格构建与定制<span class="card-title-sub">Grid & Sectioning</span></h3>
                 </div>
-                <div class="card-subtitle">将“不可控的巨幅工程”，转化为“清晰可见的小目标”。</div>
+                <div class="card-subtitle">将不可控的巨幅工程，转化为清晰可见的小目标。</div>
                 <div class="content-flow">
                     <div class="media-box-left">
                         <video src="https://packaged-media.redd.it/veuajdmtjs6h1/pb/m2-res_640p.mp4?m=DASHPlaylist.mpd&var=sgpssan&v=1&e=1781258400&s=18fb2d37d4a3e0694d0d627101175b54e00385ff" autoplay loop muted playsinline></video>
@@ -241,23 +252,24 @@
                     <div class="card-body text-wrap">
                         <div class="item-row">
                             <span class="item-label">物理操作：</span>
-                            <p class="item-txt">像贴地砖一样，将离型纸一张接一张（可微微重叠）平铺在裸露的画布上。若使用的是双面涂层材质，直接铺设。</p>
+                            <p class="item-txt">像贴地砖一样，将离型纸平铺在裸露的画布上。双面涂层材质可直接铺设不管正反。</p>
                         </div>
                         <div class="item-row">
                             <span class="item-label">进阶动作：</span>
-                            <p class="item-txt">依据自身的创作节奏，使用工艺刀配合尺子或和纸胶带，将 4x6 等大尺寸纸张进一步划分为 2x2 或更小方格。</p>
+                            <p class="item-txt">依据自身创作节奏，使用工艺切割刀配合和纸胶带，将大尺寸纸张划分为极小方格。</p>
                         </div>
                         <div class="item-row">
                             <span class="item-label insight-tag">💡洞察：</span>
-                            <p class="item-txt">这是一步极具 <span class="bold-text">心理疗愈</span> 作用的动作。面对巨大空白画布易产生挫败，通过网格化用户重获<span class="bold-text">掌控感</span>。</p>
+                            <p class="item-txt">面对巨白画布极易产生挫败感，通过网格化，这是一步极具 <span class="bold-text">心理疗愈</span> 作用的动作让用户重获<span class="bold-text">掌控感</span>。</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- 卡片 3 (包含包裹式交互防偏组件 - 图左边，文右边) -->
-            <div class="card card-nth-3 delay-3">
+            
+            <!-- 卡片 3 (追加 compact-target 类，定向压缩，并将“侵”改为“浸”) -->
+            <div class="card card-nth-3 delay-3 compact-target">
                 <div class="card-header">
-                    <span class="step-label">03</span><h3 class="card-title">沉侵创作与工程学<span class="card-title-sub">Micro-Crafting</span></h3>
+                    <span class="step-label">03</span><h3 class="card-title">沉浸创作与工程学<span class="card-title-sub">Micro-Crafting</span></h3>
                 </div>
                 <div class="card-subtitle">化身防污“手托”，打造私密、静音的心流工作区。</div>
                 <div class="content-flow">
@@ -282,13 +294,13 @@
                         </div>
                         <div class="item-row">
                             <span class="item-label insight-tag">💡洞察：</span>
-                            <p class="item-txt">这是整个流程中<span class="bold-text">体验价值（Aha Moment）最强</span>环节。未揭开的纸化身防脏手托。防止手汗湿胶、猫毛飘入，打造极静音体验。</p>
+                            <p class="item-txt">这是整个流程中<span class="bold-text">体验价值（Aha Moment）最强</span>环节。未揭开纸化身防脏手托，防汗湿胶、隔绝毛发，打造极静音体验。</p>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- 卡片 4 (保持极宽体双栏原样) -->
+            <!-- 卡片 4 (没有任何压缩，保持原生完美) -->
             <div class="card card-wide card-nth-4 delay-4">
                 <div class="card-header">
                     <span class="step-label">04</span><h3 class="card-title">中途封存与保险<span class="card-title-sub">Reseal & Preservation</span></h3>
@@ -314,7 +326,8 @@
                     </div>
                 </div>
             </div>
-            <!-- 卡片 5 (保持极宽体双栏原样) -->
+            
+            <!-- 卡片 5 (没有任何压缩，保持原生完美) -->
             <div class="card card-wide card-nth-5 delay-5">
                 <div class="card-header">
                     <span class="step-label">05</span><h3 class="card-title">结项清理与循环<span class="card-title-sub">Archive & Recycle</span></h3>
@@ -337,14 +350,14 @@
                         <div class="item-row">
                             <span class="item-label">进阶动作：</span>
                             <p class="item-txt">
-                                <span class="bold-text">清洁：</span>若表面留有残胶或纤维可用湿巾轻拭。<span class="bold-text">修复：</span>撕拉导致卷边夹入厚书中重压一夜即可平整。<span class="bold-text">收纳：</span>贴回原底纸待命。
+                                <span class="bold-text">清洁：</span>若表面留有残胶可用湿巾轻拭。<span class="bold-text">修复：</span>撕拉导致卷边夹入书中重压一夜。<span class="bold-text">收纳：</span>贴回原底纸待命。
                             </p>
                         </div>
                         <div class="item-row">
                             <span class="item-label insight-tag">💡洞察：</span>
                             <div class="item-txt">
-                                <span class="card5-target">5个竞品，其中4个都明确提出“完成整个作品后，将离型纸收集起来放入收纳盒，以备下一个项目使用”。</span>
-                                <span style="display: block; margin-top: 0.5vw;">用户潜意识中将此类产品视为“一次性耗材中的耐用品”。易于清理和极高的复用率，不仅符合环保趋势，更极大提升了购买决策时的性价比感知。</span>
+                                <span class="card5-target">5个竞品，其中4个都明确提出“完成后将离型纸放入收纳盒，以备下一项目使用”。</span>
+                                <span style="display: block; margin-top: 0.5vw;">用户潜意识将此类产品视为“耗材中的耐用品”。易于清理和极高的复用率，不仅符合环保趋势，更极大提升了性价比感知。</span>
                             </div>
                         </div>
                     </div>
@@ -353,7 +366,6 @@
         </main>
     </div>
     
-    <!-- ⚡ 交互脚本完全保留不变 -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // 卡片3
